@@ -119,10 +119,10 @@ const Quiz = () => {
 
   const getScoreMessage = (score: number) => {
     const percentage = (score / quizData.questions.length) * 100
-    if (percentage >= 90) return { message: "Excellent! You're a climate science expert!", color: "text-success", points: 100 }
-    if (percentage >= 70) return { message: "Great job! You have a solid understanding.", color: "text-success", points: 80 }
-    if (percentage >= 50) return { message: "Good effort! Keep learning to improve.", color: "text-gold", points: 60 }
-    return { message: "Keep studying! Practice makes perfect.", color: "text-destructive", points: 30 }
+    if (percentage >= 90) return { message: "Excellent! You're a climate science expert!", color: "text-success", points: 50 }
+    if (percentage >= 70) return { message: "Great job! You have a solid understanding.", color: "text-success", points: 40 }
+    if (percentage >= 50) return { message: "Good effort! Keep learning to improve.", color: "text-gold", points: 25 }
+    return { message: "Keep studying! Practice makes perfect.", color: "text-destructive", points: 10 }
   }
 
   if (showResults) {

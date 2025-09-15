@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { VideoPlayer } from "@/components/VideoPlayer"
-import { RealWorldTask } from "@/components/RealWorldTask"
 import { ArrowLeft, Brain } from "lucide-react"
 
 const Lesson = () => {
@@ -61,13 +60,7 @@ const Lesson = () => {
           />
         </div>
 
-        {/* Real-World Task */}
-        <div className="mb-8">
-          <RealWorldTask 
-            lessonId={lessonId || ""} 
-            taskDescription="Take a photo showing how you've applied today's lesson in your daily life. For example: using reusable containers, reducing energy consumption, or implementing a sustainable practice you learned about."
-          />
-        </div>
+        {/* Real-World Task moved to dedicated page */}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">

@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Course from "./pages/Course";
 import Lesson from "./pages/Lesson";
 import Quiz from "./pages/Quiz";
+import RealWorldTaskPage from "./pages/RealWorldTaskPage";
 import Leaderboard from "./pages/Leaderboard";
 import NewBadges from "./pages/NewBadges";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/course/:courseId" element={<Course />} />
                 <Route path="/lesson/:lessonId" element={<Lesson />} />
                 <Route path="/quiz/:lessonId" element={<Quiz />} />
+                <Route path="/task/:lessonId" element={<RealWorldTaskPage />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/badges" element={<NewBadges />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -198,6 +198,11 @@ const Quiz = () => {
                     Continue Course
                   </Button>
                 </Link>
+                <Link to={`/task/${lessonId}`} className="flex-1">
+                  <Button variant="hero" size="lg" className="w-full">
+                    Do Real-World Task
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

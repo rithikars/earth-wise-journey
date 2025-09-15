@@ -1,8 +1,88 @@
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/enhanced-button"
-import { Leaf, ArrowRight } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Leaf, Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/hooks/use-toast"
 
 const SignIn = () => {
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [displayName, setDisplayName] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  
+  const { signIn, signUp, user } = useAuth()
+  const navigate = useNavigate()
+  const { toast } = useToast()
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard")
+    }
+  }, [user, navigate])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      if (isSignUp) {
+        if (!displayName.trim()) {
+          toast({
+            title: "Display name required",
+            description: "Please enter your display name",
+            variant: "destructive"
+          })
+          return
+        }
+        
+        const { error } = await signUp(email, password, displayName)
+        if (error) {
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive"
+          })
+        } else {
+          toast({
+            title: "Account created!",
+            description: "Please check your email to verify your account.",
+            variant: "default"
+          })
+          setIsSignUp(false)
+        }
+      } else {
+        const { error } = await signIn(email, password)
+        if (error) {
+          toast({
+            title: "Sign in failed", 
+            description: error.message,
+            variant: "destructive"
+          })
+        } else {
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in.",
+            variant: "default"
+          })
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-earth flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -16,35 +96,115 @@ const SignIn = () => {
             </div>
             
             <h1 className="text-3xl font-bold text-foreground">
-              Welcome Back!
+              {isSignUp ? "Join AgroLearn" : "Welcome Back!"}
             </h1>
             <p className="text-muted-foreground">
-              Ready to continue your environmental sustainability journey?
+              {isSignUp 
+                ? "Start your environmental sustainability journey today"
+                : "Ready to continue your environmental sustainability journey?"
+              }
             </p>
           </div>
 
-          <div className="space-y-6">
-            <div className="p-6 bg-gradient-earth rounded-xl border border-border">
-              <div className="text-center space-y-3">
-                <div className="w-16 h-16 bg-gradient-eco rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Leaf className="h-8 w-8 text-success-foreground" />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="displayName" className="text-sm font-medium text-foreground">
+                  Display Name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="displayName"
+                    type="text"
+                    placeholder="Enter your display name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="pl-10"
+                    required={isSignUp}
+                  />
                 </div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  Quick Entry
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  For now, just click the button below to enter your learning dashboard!
-                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                Email
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                />
               </div>
             </div>
 
-            <Link to="/dashboard" className="block">
-              <Button variant="hero" size="xl" className="w-full">
-                Enter Learning Platform
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              variant="hero" 
+              size="xl" 
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                "Loading..."
+              ) : isSignUp ? (
+                <>
+                  Create Account
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                {isSignUp 
+                  ? "Already have an account? Sign in" 
+                  : "Don't have an account? Sign up"
+                }
+              </button>
+            </div>
+          </form>
 
           <div className="text-center">
             <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">

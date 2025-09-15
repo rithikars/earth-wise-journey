@@ -1,11 +1,12 @@
 import { Leaf, Award } from "lucide-react"
+import { useEcoPoints } from "@/contexts/EcoPointsContext"
 
 interface EcoPointsBarProps {
-  points: number
   level?: string
 }
 
-export const EcoPointsBar = ({ points, level = "Seedling" }: EcoPointsBarProps) => {
+export const EcoPointsBar = ({ level = "Seedling" }: EcoPointsBarProps) => {
+  const { points } = useEcoPoints()
   return (
     <div className="flex items-center gap-3 bg-gradient-eco rounded-full px-4 py-2 shadow-glow">
       <Leaf className="h-5 w-5 text-success-foreground" />

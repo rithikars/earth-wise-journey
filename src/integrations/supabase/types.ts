@@ -14,13 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      eco_point_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          lesson_id: string | null
+          metadata: Json | null
+          points: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          lesson_id?: string | null
+          metadata?: Json | null
+          points: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          lesson_id?: string | null
+          metadata?: Json | null
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          quiz_score: number | null
+          task_verified: boolean
+          updated_at: string
+          user_id: string
+          video_completed: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          quiz_score?: number | null
+          task_verified?: boolean
+          updated_at?: string
+          user_id: string
+          video_completed?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          quiz_score?: number | null
+          task_verified?: boolean
+          updated_at?: string
+          user_id?: string
+          video_completed?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      award_quiz_points: {
+        Args: { correct: number; lesson_id: string; total: number }
+        Returns: number
+      }
+      award_task_points: {
+        Args: { lesson_id: string }
+        Returns: number
+      }
+      award_video_points: {
+        Args: { lesson_id: string }
+        Returns: number
+      }
+      get_total_points: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

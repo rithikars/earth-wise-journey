@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { VideoPlayer } from "@/components/VideoPlayer"
 import { ArrowLeft, Brain, CheckCircle2, PlayCircle } from "lucide-react"
 
 const Lesson = () => {
@@ -51,27 +52,13 @@ const Lesson = () => {
         </div>
 
         {/* Video Player */}
-        <Card className="mb-8 shadow-nature">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PlayCircle className="h-5 w-5 text-primary" />
-              Video Lesson
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-              <iframe
-                src={videoUrl}
-                title={lesson.title}
-                className="w-full h-full"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-            
-          </CardContent>
-        </Card>
+        <div className="mb-8">
+          <VideoPlayer 
+            src={videoUrl} 
+            lessonId={lessonId || ""} 
+            title={lesson.title}
+          />
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">

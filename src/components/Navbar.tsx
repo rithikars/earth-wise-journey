@@ -38,7 +38,7 @@ export const Navbar = () => {
               </Link>
             </div>
             
-            <EcoPointsBar points={0} level="Seedling" />
+            <EcoPointsBar level="Seedling" />
           </div>
         </div>
       </div>

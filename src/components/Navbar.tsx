@@ -25,7 +25,7 @@ export const Navbar = () => {
             </span>
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-1">
               <Link to="/badges" className={navLinkClass("/badges")}>
                 <Award className="h-4 w-4" />

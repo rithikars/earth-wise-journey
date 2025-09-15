@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { VideoPlayer } from "@/components/VideoPlayer"
-import { ArrowLeft, Brain, CheckCircle2, PlayCircle } from "lucide-react"
+import { RealWorldTask } from "@/components/RealWorldTask"
+import { ArrowLeft, Brain } from "lucide-react"
 
 const Lesson = () => {
   const { lessonId } = useParams()
@@ -61,13 +62,21 @@ const Lesson = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Link to={`/quiz/${lesson.id}`} className="flex-1">
             <Button variant="hero" size="lg" className="w-full">
               <Brain className="h-5 w-5 mr-2" />
               Take Quiz to Test Your Knowledge
             </Button>
           </Link>
+        </div>
+
+        {/* Real-World Task */}
+        <div className="mb-8">
+          <RealWorldTask 
+            lessonId={lessonId || ""}
+            taskDescription="Take a photo of yourself implementing one sustainable practice you learned in this lesson. This could be using a reusable water bottle, recycling properly, turning off lights when leaving a room, or any other eco-friendly action."
+          />
         </div>
 
         {/* Learning Objectives */}

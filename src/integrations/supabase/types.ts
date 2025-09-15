@@ -107,6 +107,102 @@ export type Database = {
         }
         Relationships: []
       }
+      real_world_tasks: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          photo_url: string | null
+          points_awarded: number | null
+          updated_at: string
+          user_id: string
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          photo_url?: string | null
+          points_awarded?: number | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          photo_url?: string | null
+          points_awarded?: number | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_description: string | null
+          badge_name: string
+          created_at: string
+          id: string
+          points_required: number
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          badge_description?: string | null
+          badge_name: string
+          created_at?: string
+          id?: string
+          points_required: number
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          badge_description?: string | null
+          badge_name?: string
+          created_at?: string
+          id?: string
+          points_required?: number
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_ranks: {
+        Row: {
+          created_at: string
+          current_rank: number
+          id: string
+          lifetime_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_rank?: number
+          id?: string
+          lifetime_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_rank?: number
+          id?: string
+          lifetime_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -126,6 +222,10 @@ export type Database = {
       }
       get_total_points: {
         Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      verify_task_and_award_points: {
+        Args: { _task_id: string }
         Returns: number
       }
     }

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface EcoPointsContextType {
   points: number
@@ -30,25 +31,20 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const [points, setPoints] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+  const { user, session } = useAuth()
 
-  const ensureAuth = async () => {
-    const { data } = await supabase.auth.getSession()
-    if (data.session) return
-
-    const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
-    if (anonError || !anonData?.session) {
-      const code = (anonError as any)?.code || ''
-      if (code === 'anonymous_provider_disabled') {
-        // Surface a special error so callers can prompt for sign-in
-        throw new Error('ANON_DISABLED')
-      }
-      throw anonError || new Error('Anonymous sign-in not available')
+  const checkAuth = () => {
+    if (!user || !session) {
+      throw new Error('SIGN_IN_REQUIRED')
     }
   }
 
   const refreshPoints = async () => {
     try {
-      await ensureAuth()
+      if (!user || !session) {
+        setPoints(0)
+        return
+      }
       const { data, error } = await supabase.rpc('get_total_points')
       if (error) throw error
       setPoints(data || 0)
@@ -61,7 +57,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardVideoPoints = async (lessonId: string) => {
     setIsLoading(true)
     try {
-      await ensureAuth()
+      checkAuth()
       const { data, error } = await supabase.rpc('award_video_points', { lesson_id: lessonId })
       if (error) throw error
       
@@ -75,7 +71,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       console.error('Error awarding video points:', error)
       const msg = error?.message || ''
       if (!msg.includes('duplicate key')) {
-        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
+        const needsSignIn = msg === 'SIGN_IN_REQUIRED' || msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled')
         toast({
           title: needsSignIn ? "Sign in required" : "Error",
           description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
@@ -95,7 +91,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardQuizPoints = async (lessonId: string, correct: number, total: number) => {
     setIsLoading(true)
     try {
-      await ensureAuth()
+      checkAuth()
       const { data, error } = await supabase.rpc('award_quiz_points', {
         lesson_id: lessonId,
         correct,
@@ -119,7 +115,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       console.error('Error awarding quiz points:', error)
       const msg = error?.message || ''
       if (!msg.includes('duplicate key')) {
-        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
+        const needsSignIn = msg === 'SIGN_IN_REQUIRED' || msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled')
         toast({
           title: needsSignIn ? "Sign in required" : "Error",
           description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
@@ -139,7 +135,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardTaskPoints = async (lessonId: string) => {
     setIsLoading(true)
     try {
-      await ensureAuth()
+      checkAuth()
       const { data, error } = await supabase.rpc('award_task_points', { lesson_id: lessonId })
       if (error) throw error
       
@@ -153,7 +149,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       console.error('Error awarding task points:', error)
       const msg = error?.message || ''
       if (!msg.includes('duplicate key')) {
-        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
+        const needsSignIn = msg === 'SIGN_IN_REQUIRED' || msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled')
         toast({
           title: needsSignIn ? "Sign in required" : "Error",
           description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
@@ -171,7 +167,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   }
 
   useEffect(() => {
-    // Load initial points
+    // Load initial points when user changes
     refreshPoints()
     
     // Subscribe to real-time updates
@@ -193,7 +189,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [user])
 
   return (
     <EcoPointsContext.Provider

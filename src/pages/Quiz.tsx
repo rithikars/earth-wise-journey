@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Brain, CheckCircle2, X, Trophy } from "lucide-react"
+import { useEcoPoints } from "@/contexts/EcoPointsContext"
+import { toast } from "@/components/ui/use-toast"
 
 const Quiz = () => {
   const { lessonId } = useParams()
@@ -14,6 +16,7 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<string[]>([])
   const [showResults, setShowResults] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState("")
+  const { awardQuizPoints } = useEcoPoints()
 
   // Sample quiz data - in a real app this would come from an API
   const quizData = {
@@ -96,6 +99,18 @@ const Quiz = () => {
       setCurrentQuestion(currentQuestion + 1)
     } else {
       setShowResults(true)
+      
+      // Award quiz points when quiz is completed
+      if (lessonId) {
+        const score = calculateScore(newAnswers)
+        await awardQuizPoints(lessonId, score, quizData.questions.length)
+        
+        const scoreInfo = getScoreMessage(score)
+        toast({
+          title: "Quiz Complete! 🎉",
+          description: `You earned ${scoreInfo.points} Eco Points!`,
+        })
+      }
     }
   }
 
@@ -147,7 +162,7 @@ const Quiz = () => {
               
               <div className="bg-gradient-gold rounded-lg p-4">
                 <p className="text-gold-foreground font-semibold">
-                  You earned {scoreInfo.points} eco points! 🌱
+                  You earned {scoreInfo.points} Eco Points! 🌱
                 </p>
               </div>
               

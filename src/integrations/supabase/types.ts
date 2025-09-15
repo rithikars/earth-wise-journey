@@ -113,15 +113,15 @@ export type Database = {
     }
     Functions: {
       award_quiz_points: {
-        Args: { correct: number; lesson_id: string; total: number }
+        Args: { _correct: number; _lesson_id: string; _total: number }
         Returns: number
       }
       award_task_points: {
-        Args: { lesson_id: string }
+        Args: { _lesson_id: string }
         Returns: number
       }
       award_video_points: {
-        Args: { lesson_id: string }
+        Args: { _lesson_id: string }
         Returns: number
       }
       get_total_points: {

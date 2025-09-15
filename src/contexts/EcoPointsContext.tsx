@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 interface EcoPointsContextType {
   points: number
@@ -32,11 +33,16 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
 
   const ensureAuth = async () => {
     const { data } = await supabase.auth.getSession()
-    if (!data.session) {
-      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
-      if (anonError || !anonData?.session) {
-        throw anonError || new Error('Anonymous sign-in not available')
+    if (data.session) return
+
+    const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
+    if (anonError || !anonData?.session) {
+      const code = (anonError as any)?.code || ''
+      if (code === 'anonymous_provider_disabled') {
+        // Surface a special error so callers can prompt for sign-in
+        throw new Error('ANON_DISABLED')
       }
+      throw anonError || new Error('Anonymous sign-in not available')
     }
   }
 
@@ -67,11 +73,18 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       })
     } catch (error: any) {
       console.error('Error awarding video points:', error)
-      if (!error.message?.includes('duplicate key')) {
+      const msg = error?.message || ''
+      if (!msg.includes('duplicate key')) {
+        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
         toast({
-          title: "Error",
-          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
-          variant: "destructive"
+          title: needsSignIn ? "Sign in required" : "Error",
+          description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
+          variant: "destructive",
+          action: needsSignIn ? (
+            <ToastAction altText="Sign in" onClick={() => { window.location.href = '/signin' }}>
+              Sign in
+            </ToastAction>
+          ) : undefined
         })
       }
     } finally {
@@ -104,11 +117,18 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       })
     } catch (error: any) {
       console.error('Error awarding quiz points:', error)
-      if (!error.message?.includes('duplicate key')) {
+      const msg = error?.message || ''
+      if (!msg.includes('duplicate key')) {
+        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
         toast({
-          title: "Error",
-          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
-          variant: "destructive"
+          title: needsSignIn ? "Sign in required" : "Error",
+          description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
+          variant: "destructive",
+          action: needsSignIn ? (
+            <ToastAction altText="Sign in" onClick={() => { window.location.href = '/signin' }}>
+              Sign in
+            </ToastAction>
+          ) : undefined
         })
       }
     } finally {
@@ -131,11 +151,18 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       })
     } catch (error: any) {
       console.error('Error awarding task points:', error)
-      if (!error.message?.includes('duplicate key')) {
+      const msg = error?.message || ''
+      if (!msg.includes('duplicate key')) {
+        const needsSignIn = msg === 'Not authenticated' || msg.includes('Anonymous sign-ins are disabled') || msg === 'ANON_DISABLED'
         toast({
-          title: "Error",
-          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
-          variant: "destructive"
+          title: needsSignIn ? "Sign in required" : "Error",
+          description: needsSignIn ? "Please sign in to earn Eco Points." : "Failed to award points. Please try again.",
+          variant: "destructive",
+          action: needsSignIn ? (
+            <ToastAction altText="Sign in" onClick={() => { window.location.href = '/signin' }}>
+              Sign in
+            </ToastAction>
+          ) : undefined
         })
       }
     } finally {

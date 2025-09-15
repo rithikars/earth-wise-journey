@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react"
-import { useEcoPoints } from "@/contexts/EcoPointsContext"
 
 interface VideoPlayerProps {
   src: string
@@ -14,9 +13,7 @@ export const VideoPlayer = ({ src, lessonId, title }: VideoPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [hasAwarded, setHasAwarded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const { awardVideoPoints } = useEcoPoints()
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -49,14 +46,7 @@ export const VideoPlayer = ({ src, lessonId, title }: VideoPlayerProps) => {
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const current = videoRef.current.currentTime
-      const total = videoRef.current.duration
       setCurrentTime(current)
-      
-      // Award points when video is 90% complete and hasn't been awarded yet
-      if (!hasAwarded && total > 0 && current / total >= 0.9) {
-        setHasAwarded(true)
-        awardVideoPoints(lessonId)
-      }
     }
   }
 

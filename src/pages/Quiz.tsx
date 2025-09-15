@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Navbar } from "@/components/Navbar"
-import { useEcoPoints } from "@/contexts/EcoPointsContext"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,7 +10,6 @@ import { ArrowLeft, Brain, CheckCircle2, X, Trophy } from "lucide-react"
 
 const Quiz = () => {
   const { lessonId } = useParams()
-  const { awardQuizPoints } = useEcoPoints()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<string[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -97,11 +95,6 @@ const Quiz = () => {
     if (currentQuestion < quizData.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
-      // Award points before showing results
-      if (lessonId) {
-        const score = calculateScore(newAnswers)
-        await awardQuizPoints(lessonId, score, quizData.questions.length)
-      }
       setShowResults(true)
     }
   }

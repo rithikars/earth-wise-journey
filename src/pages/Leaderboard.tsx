@@ -9,7 +9,6 @@ const Leaderboard = () => {
     {
       id: "user-1",
       name: "You",
-      ecoPoints: 250,
       level: "Seedling",
       badges: ["First Steps", "Quiz Master"],
       completedCourses: 0,
@@ -69,15 +68,7 @@ const Leaderboard = () => {
             <CardTitle className="text-center">Your Environmental Impact</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div className="space-y-2">
-                <div className="w-12 h-12 bg-gradient-gold rounded-full flex items-center justify-center mx-auto">
-                  <Star className="h-6 w-6 text-gold-foreground" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">250</p>
-                <p className="text-sm text-muted-foreground">Eco Points</p>
-              </div>
-              
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div className="space-y-2">
                 <div className="w-12 h-12 bg-gradient-eco rounded-full flex items-center justify-center mx-auto">
                   <Crown className="h-6 w-6 text-success-foreground" />
@@ -144,11 +135,11 @@ const Leaderboard = () => {
                     </div>
                     
                     <div className="text-right">
-                      <p className={`text-2xl font-bold ${getRankTextColor(user.rank, user.isCurrentUser)}`}>
-                        {user.ecoPoints.toLocaleString()}
+                      <p className={`text-lg font-bold ${getRankTextColor(user.rank, user.isCurrentUser)}`}>
+                        Level {user.level}
                       </p>
                       <p className={`text-sm ${getRankTextColor(user.rank, user.isCurrentUser)} opacity-80`}>
-                        eco points
+                        {user.badges.length} badges
                       </p>
                     </div>
                   </div>
@@ -193,7 +184,7 @@ const Leaderboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-success-foreground">Seedling</p>
-                    <p className="text-sm text-success-foreground/80">0 - 500 points</p>
+                    <p className="text-sm text-success-foreground/80">Beginner Level</p>
                   </div>
                 </div>
                 <Badge className="bg-success-foreground/20 text-success-foreground border-0">
@@ -208,7 +199,7 @@ const Leaderboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Sprout</p>
-                    <p className="text-sm text-muted-foreground">500 - 1,500 points</p>
+                    <p className="text-sm text-muted-foreground">Intermediate Level</p>
                   </div>
                 </div>
               </div>
@@ -220,7 +211,7 @@ const Leaderboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Tree Guardian</p>
-                    <p className="text-sm text-muted-foreground">1,500 - 5,000 points</p>
+                    <p className="text-sm text-muted-foreground">Advanced Level</p>
                   </div>
                 </div>
               </div>
@@ -232,7 +223,7 @@ const Leaderboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold">Eco Champion</p>
-                    <p className="text-sm text-muted-foreground">5,000+ points</p>
+                    <p className="text-sm text-muted-foreground">Expert Level</p>
                   </div>
                 </div>
               </div>

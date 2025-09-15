@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
 import { Leaf, Trophy, Award } from "lucide-react"
-import { EcoPointsBar } from "./EcoPointsBar"
 
 export const Navbar = () => {
   const location = useLocation()
@@ -37,8 +36,6 @@ export const Navbar = () => {
                 <span className="hidden sm:inline">Leaderboard</span>
               </Link>
             </div>
-            
-            <EcoPointsBar level="Seedling" />
           </div>
         </div>
       </div>

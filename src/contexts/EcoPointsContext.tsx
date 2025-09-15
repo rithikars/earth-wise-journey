@@ -30,8 +30,19 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
+  const ensureAuth = async () => {
+    const { data } = await supabase.auth.getSession()
+    if (!data.session) {
+      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously()
+      if (anonError || !anonData?.session) {
+        throw anonError || new Error('Anonymous sign-in not available')
+      }
+    }
+  }
+
   const refreshPoints = async () => {
     try {
+      await ensureAuth()
       const { data, error } = await supabase.rpc('get_total_points')
       if (error) throw error
       setPoints(data || 0)
@@ -44,6 +55,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardVideoPoints = async (lessonId: string) => {
     setIsLoading(true)
     try {
+      await ensureAuth()
       const { data, error } = await supabase.rpc('award_video_points', { lesson_id: lessonId })
       if (error) throw error
       
@@ -58,7 +70,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       if (!error.message?.includes('duplicate key')) {
         toast({
           title: "Error",
-          description: "Failed to award points. Please try again.",
+          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
           variant: "destructive"
         })
       }
@@ -70,6 +82,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardQuizPoints = async (lessonId: string, correct: number, total: number) => {
     setIsLoading(true)
     try {
+      await ensureAuth()
       const { data, error } = await supabase.rpc('award_quiz_points', {
         lesson_id: lessonId,
         correct,
@@ -94,7 +107,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       if (!error.message?.includes('duplicate key')) {
         toast({
           title: "Error",
-          description: "Failed to award points. Please try again.",
+          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
           variant: "destructive"
         })
       }
@@ -106,6 +119,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
   const awardTaskPoints = async (lessonId: string) => {
     setIsLoading(true)
     try {
+      await ensureAuth()
       const { data, error } = await supabase.rpc('award_task_points', { lesson_id: lessonId })
       if (error) throw error
       
@@ -120,7 +134,7 @@ export const EcoPointsProvider = ({ children }: EcoPointsProviderProps) => {
       if (!error.message?.includes('duplicate key')) {
         toast({
           title: "Error",
-          description: "Failed to award points. Please try again.",
+          description: error.message === 'Not authenticated' ? "Please sign in to earn points." : "Failed to award points. Please try again.",
           variant: "destructive"
         })
       }

@@ -33,7 +33,23 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
   }
 
   const uploadPhoto = async () => {
-    if (!photoFile || !user) return
+    if (!photoFile) return
+    if (!user) {
+      toast({
+        title: "Upload Failed",
+        description: "You must be signed in to upload.",
+        variant: "destructive"
+      })
+      return
+    }
+    if (!lessonId) {
+      toast({
+        title: "Upload Failed",
+        description: "Missing lesson identifier.",
+        variant: "destructive"
+      })
+      return
+    }
 
     setIsUploading(true)
     try {
@@ -41,20 +57,21 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
       reader.onload = async (e) => {
         const photoDataUrl = e.target?.result as string
         
-        // Insert task record
+        // Upsert task record to avoid unique constraint issues on re-submit
         const { error } = await supabase
           .from('real_world_tasks')
-          .insert({
+          .upsert({
             user_id: user.id,
             lesson_id: lessonId,
             photo_url: photoDataUrl,
             verification_status: 'pending'
-          })
+          }, { onConflict: 'user_id,lesson_id' })
         
         if (error) {
+          console.error('Upload failed:', error)
           toast({
             title: "Upload Failed",
-            description: "Failed to upload your photo. Please try again.",
+            description: error.message || "Failed to upload your photo. Please try again.",
             variant: "destructive"
           })
         } else {

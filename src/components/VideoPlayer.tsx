@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react"
-import { useEcoPoints } from "@/contexts/EcoPointsContext"
-import { toast } from "@/components/ui/use-toast"
 
 interface VideoPlayerProps {
   src: string
@@ -15,9 +13,7 @@ export const VideoPlayer = ({ src, lessonId, title }: VideoPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [hasAwarded, setHasAwarded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const { awardVideoPoints } = useEcoPoints()
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -49,21 +45,7 @@ export const VideoPlayer = ({ src, lessonId, title }: VideoPlayerProps) => {
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      const current = videoRef.current.currentTime
-      setCurrentTime(current)
-      
-      // Award points when video is 90% complete
-      if (lessonId && !hasAwarded && duration > 0) {
-        const progressPercentage = (current / duration) * 100
-        if (progressPercentage >= 90) {
-          setHasAwarded(true)
-          awardVideoPoints(lessonId)
-          toast({
-            title: "Video Complete! 🎉",
-            description: "You earned 25 Eco Points for watching the full lesson!",
-          })
-        }
-      }
+      setCurrentTime(videoRef.current.currentTime)
     }
   }
 

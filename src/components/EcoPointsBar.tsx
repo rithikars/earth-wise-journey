@@ -1,4 +1,4 @@
-import { Star, Award } from "lucide-react"
+import { Leaf, Award } from "lucide-react"
 
 interface EcoPointsBarProps {
   points: number
@@ -7,16 +7,16 @@ interface EcoPointsBarProps {
 
 export const EcoPointsBar = ({ points, level = "Seedling" }: EcoPointsBarProps) => {
   return (
-    <div className="flex items-center gap-3 bg-gradient-gold rounded-full px-4 py-2 shadow-glow">
-      <Star className="h-5 w-5 text-gold-foreground fill-current" />
+    <div className="flex items-center gap-3 bg-gradient-eco rounded-full px-4 py-2 shadow-glow">
+      <Leaf className="h-5 w-5 text-success-foreground" />
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-gold-foreground">
+        <span className="text-sm font-semibold text-success-foreground">
           {points} Eco Points
         </span>
-        <div className="h-4 w-px bg-gold-foreground/20" />
+        <div className="h-4 w-px bg-success-foreground/20" />
         <div className="flex items-center gap-1">
-          <Award className="h-4 w-4 text-gold-foreground" />
-          <span className="text-xs font-medium text-gold-foreground/80">
+          <Award className="h-4 w-4 text-success-foreground" />
+          <span className="text-xs font-medium text-success-foreground/80">
             {level}
           </span>
         </div>

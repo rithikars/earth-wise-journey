@@ -129,7 +129,7 @@ const Leaderboard = () => {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h3 className={`font-bold text-lg ${getRankTextColor(user.rank, user.isCurrentUser)}`}>
-                            {user.name}
+                            #{user.rank} {user.name}
                           </h3>
                           {user.isCurrentUser && (
                             <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-0">

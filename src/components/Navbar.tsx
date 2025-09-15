@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Leaf, ShoppingBag, Trophy, Home } from "lucide-react"
+import { Leaf, Trophy, Award } from "lucide-react"
 import { EcoPointsBar } from "./EcoPointsBar"
 
 export const Navbar = () => {
@@ -26,17 +26,10 @@ export const Navbar = () => {
           </Link>
 
           <div className="flex items-center gap-6">
-            <EcoPointsBar points={250} level="Seedling" />
-            
             <div className="flex items-center gap-1">
-              <Link to="/dashboard" className={navLinkClass("/dashboard")}>
-                <Home className="h-4 w-4" />
-                <span className="hidden sm:inline">Home</span>
-              </Link>
-              
-              <Link to="/shop" className={navLinkClass("/shop")}>
-                <ShoppingBag className="h-4 w-4" />
-                <span className="hidden sm:inline">Shop</span>
+              <Link to="/badges" className={navLinkClass("/badges")}>
+                <Award className="h-4 w-4" />
+                <span className="hidden sm:inline">Badges</span>
               </Link>
               
               <Link to="/leaderboard" className={navLinkClass("/leaderboard")}>
@@ -44,6 +37,8 @@ export const Navbar = () => {
                 <span className="hidden sm:inline">Leaderboard</span>
               </Link>
             </div>
+            
+            <EcoPointsBar points={0} level="Seedling" />
           </div>
         </div>
       </div>

@@ -11,10 +11,10 @@ const Dashboard = () => {
     id: "climate-change-101",
     title: "Climate Change Fundamentals",
     description: "Understanding the science behind climate change, its impacts, and actionable solutions for a sustainable future.",
-    duration: "4 weeks",
-    lessons: 12,
+    duration: "1 weeks",
+    lessons: 5,
     difficulty: "Beginner",
-    enrolled: 1250,
+    enrolled: 0,
     rating: 4.8,
     progress: 0, // User hasn't started yet
     thumbnail: "/placeholder.svg"
@@ -70,11 +70,11 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  <span className="text-sm">{course.enrolled.toLocaleString()} enrolled</span>
+                  <span className="text-sm">- enrolled</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Star className="h-4 w-4 fill-current text-gold" />
-                  <span className="text-sm">{course.rating}/5</span>
+                  <span className="text-sm">- / 5</span>
                 </div>
               </div>
               
@@ -85,9 +85,6 @@ const Dashboard = () => {
                     Start Learning
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="sm:w-auto">
-                  Course Details
-                </Button>
               </div>
             </CardContent>
           </Card>

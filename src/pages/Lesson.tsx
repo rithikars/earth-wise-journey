@@ -70,24 +70,6 @@ const Lesson = () => {
               />
             </div>
             
-            <div className="mt-6 p-4 bg-gradient-earth rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground mb-1">
-                    Lesson Progress
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Watch the complete video to earn {lesson.points} eco points
-                  </p>
-                </div>
-                {lesson.completed && (
-                  <div className="flex items-center gap-2 text-success">
-                    <CheckCircle2 className="h-5 w-5" />
-                    <span className="font-medium">Completed</span>
-                  </div>
-                )}
-              </div>
-            </div>
           </CardContent>
         </Card>
 
@@ -99,11 +81,6 @@ const Lesson = () => {
               Take Quiz to Test Your Knowledge
             </Button>
           </Link>
-          
-          <Button variant="eco" size="lg" className="sm:w-auto">
-            <CheckCircle2 className="h-5 w-5 mr-2" />
-            Mark as Completed
-          </Button>
         </div>
 
         {/* Learning Objectives */}

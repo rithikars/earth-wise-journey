@@ -61,6 +61,14 @@ const Lesson = () => {
           />
         </div>
 
+        {/* Real-World Task */}
+        <div className="mb-8">
+          <RealWorldTask 
+            lessonId={lessonId || ""} 
+            taskDescription="Take a photo showing how you've applied today's lesson in your daily life. For example: using reusable containers, reducing energy consumption, or implementing a sustainable practice you learned about."
+          />
+        </div>
+
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Link to={`/quiz/${lesson.id}`} className="flex-1">
@@ -71,16 +79,8 @@ const Lesson = () => {
           </Link>
         </div>
 
-        {/* Real-World Task */}
-        <div className="mb-8">
-          <RealWorldTask 
-            lessonId={lessonId || ""}
-            taskDescription="Take a photo of yourself implementing one sustainable practice you learned in this lesson. This could be using a reusable water bottle, recycling properly, turning off lights when leaving a room, or any other eco-friendly action."
-          />
-        </div>
-
         {/* Learning Objectives */}
-        <Card className="mt-8 shadow-card">
+        <Card className="shadow-card">
           <CardHeader>
             <CardTitle>Learning Objectives</CardTitle>
           </CardHeader>

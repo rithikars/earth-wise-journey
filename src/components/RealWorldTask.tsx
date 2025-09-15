@@ -1,12 +1,10 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Upload, CheckCircle2, Camera, Award } from "lucide-react"
+import { Camera, Upload, Check, Clock, X } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/contexts/AuthContext"
-import { useEcoPoints } from "@/contexts/EcoPointsContext"
 import { toast } from "@/components/ui/use-toast"
 
 interface RealWorldTaskProps {
@@ -15,95 +13,125 @@ interface RealWorldTaskProps {
 }
 
 export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [verifying, setVerifying] = useState(false)
-  const [taskStatus, setTaskStatus] = useState<'pending' | 'uploaded' | 'verified'>('pending')
-  const [taskId, setTaskId] = useState<string | null>(null)
-  
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [taskStatus, setTaskStatus] = useState<'pending' | 'uploaded' | 'verified' | 'rejected'>('pending')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
-  const { awardTaskPoints } = useEcoPoints()
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
+    if (file && file.type.startsWith('image/')) {
+      setPhotoFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
+        setPhotoPreview(e.target?.result as string)
       }
       reader.readAsDataURL(file)
     }
   }
 
-  const handleUpload = async () => {
-    if (!selectedFile || !user) return
+  const uploadPhoto = async () => {
+    if (!photoFile || !user) return
 
-    setUploading(true)
+    setIsUploading(true)
     try {
-      // Create unique filename
-      const fileExt = selectedFile.name.split('.').pop()
-      const fileName = `${user.id}/${lessonId}/${Date.now()}.${fileExt}`
-      
-      // For now, we'll just save the task without file upload
-      // In a real app, you'd upload to Supabase Storage first
-      const { data, error } = await supabase
-        .from('real_world_tasks')
-        .insert({
-          user_id: user.id,
-          lesson_id: lessonId,
-          photo_url: fileName, // In real app, this would be the storage URL
-          verification_status: 'pending'
-        })
-        .select('id')
-        .single()
-
-      if (error) throw error
-
-      setTaskId(data.id)
-      setTaskStatus('uploaded')
-      toast({
-        title: "Photo Uploaded! 📸",
-        description: "Your real-world task photo has been submitted for verification.",
-      })
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const photoDataUrl = e.target?.result as string
+        
+        // Insert task record
+        const { error } = await supabase
+          .from('real_world_tasks')
+          .insert({
+            user_id: user.id,
+            lesson_id: lessonId,
+            photo_url: photoDataUrl,
+            verification_status: 'pending'
+          })
+        
+        if (error) {
+          toast({
+            title: "Upload Failed",
+            description: "Failed to upload your photo. Please try again.",
+            variant: "destructive"
+          })
+        } else {
+          setTaskStatus('uploaded')
+          toast({
+            title: "Photo Uploaded! 📷",
+            description: "Your photo has been submitted for verification.",
+          })
+        }
+      }
+      reader.readAsDataURL(photoFile)
     } catch (error) {
-      console.error('Error uploading task:', error)
+      console.error('Upload error:', error)
       toast({
         title: "Upload Failed",
-        description: "Failed to upload your photo. Please try again.",
+        description: "An error occurred while uploading your photo.",
         variant: "destructive"
       })
     } finally {
-      setUploading(false)
+      setIsUploading(false)
     }
   }
 
-  const handleVerify = async () => {
-    if (!taskId || !user) return
+  const verifyTask = async () => {
+    if (!user) return
 
-    setVerifying(true)
     try {
-      const { data, error } = await supabase.rpc('verify_task_and_award_points', {
-        _task_id: taskId
+      const { data, error } = await supabase
+        .from('real_world_tasks')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('lesson_id', lessonId)
+        .single()
+
+      if (error || !data) {
+        toast({
+          title: "Verification Failed",
+          description: "Task not found.",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const { error: verifyError } = await supabase.rpc('verify_task_and_award_points', {
+        _task_id: data.id
       })
 
-      if (error) throw error
-
-      setTaskStatus('verified')
-      toast({
-        title: "Task Verified! 🎉",
-        description: "Congratulations! You earned 70 Eco Points for completing this real-world task!",
-      })
+      if (verifyError) {
+        toast({
+          title: "Verification Failed",
+          description: verifyError.message,
+          variant: "destructive"
+        })
+      } else {
+        setTaskStatus('verified')
+        toast({
+          title: "Task Verified! 🎉",
+          description: "You earned 70 Eco Points for completing this real-world task!",
+        })
+      }
     } catch (error) {
-      console.error('Error verifying task:', error)
-      toast({
-        title: "Verification Failed",
-        description: "Failed to verify your task. Please try again.",
-        variant: "destructive"
-      })
-    } finally {
-      setVerifying(false)
+      console.error('Verification error:', error)
+    }
+  }
+
+  const getStatusBadge = () => {
+    switch (taskStatus) {
+      case 'pending':
+        return <Badge variant="secondary">Not Started</Badge>
+      case 'uploaded':
+        return <Badge variant="outline" className="text-yellow-600"><Clock className="h-3 w-3 mr-1" />Pending Verification</Badge>
+      case 'verified':
+        return <Badge variant="default" className="bg-green-600"><Check className="h-3 w-3 mr-1" />Verified (+70 points)</Badge>
+      case 'rejected':
+        return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />Rejected</Badge>
+      default:
+        return <Badge variant="secondary">Not Started</Badge>
     }
   }
 
@@ -115,108 +143,78 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
             <Camera className="h-5 w-5 text-primary" />
             Real-World Task
           </CardTitle>
-          <Badge 
-            variant={taskStatus === 'verified' ? 'default' : 'outline'}
-            className={taskStatus === 'verified' ? 'bg-gradient-eco text-success-foreground' : ''}
-          >
-            {taskStatus === 'verified' ? '+70 Eco Points' : '+70 Points Available'}
-          </Badge>
+          {getStatusBadge()}
         </div>
       </CardHeader>
-      
-      <CardContent className="space-y-6">
-        <div className="bg-gradient-earth rounded-lg p-4">
-          <h4 className="font-semibold text-foreground mb-2">Your Task:</h4>
-          <p className="text-muted-foreground">{taskDescription}</p>
-        </div>
-
+      <CardContent className="space-y-4">
+        <p className="text-muted-foreground">{taskDescription}</p>
+        
         {taskStatus === 'pending' && (
-          <div className="space-y-4">
-            <div>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="cursor-pointer"
-              />
+          <>
+            <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
+              {photoPreview ? (
+                <div className="space-y-4">
+                  <img src={photoPreview} alt="Task photo" className="max-w-full h-48 object-cover rounded-lg mx-auto" />
+                  <p className="text-sm text-muted-foreground">Photo selected and ready to upload</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Camera className="h-12 w-12 text-muted-foreground mx-auto" />
+                  <p className="text-muted-foreground">Take a photo of your completed task</p>
+                </div>
+              )}
             </div>
             
-            {imagePreview && (
-              <div>
-                <img 
-                  src={imagePreview} 
-                  alt="Task preview" 
-                  className="w-full max-w-md mx-auto rounded-lg shadow-card"
-                />
-              </div>
-            )}
-            
-            {selectedFile && (
-              <Button 
-                onClick={handleUpload} 
-                disabled={uploading}
-                variant="hero"
-                className="w-full"
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                {uploading ? "Uploading..." : "Upload Photo"}
+                <Camera className="h-4 w-4 mr-2" />
+                {photoFile ? 'Change Photo' : 'Take Photo'}
               </Button>
-            )}
-          </div>
-        )}
-
-        {taskStatus === 'uploaded' && (
-          <div className="space-y-4">
-            {imagePreview && (
-              <div>
-                <img 
-                  src={imagePreview} 
-                  alt="Uploaded task" 
-                  className="w-full max-w-md mx-auto rounded-lg shadow-card"
-                />
-              </div>
-            )}
-            
-            <div className="text-center space-y-4">
-              <p className="text-muted-foreground">
-                Great job! Now verify your task completion to earn your Eco Points.
-              </p>
               
-              <Button 
-                onClick={handleVerify} 
-                disabled={verifying}
-                variant="hero"
-                size="lg"
-                className="w-full"
-              >
-                <CheckCircle2 className="h-5 w-5 mr-2" />
-                {verifying ? "Verifying..." : "Verify Task Completion"}
-              </Button>
+              {photoFile && (
+                <Button
+                  variant="hero"
+                  onClick={uploadPhoto}
+                  disabled={isUploading}
+                  className="flex-1"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploading ? 'Uploading...' : 'Submit'}
+                </Button>
+              )}
             </div>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </>
+        )}
+        
+        {taskStatus === 'uploaded' && photoPreview && (
+          <div className="space-y-4">
+            <img src={photoPreview} alt="Submitted task photo" className="max-w-full h-48 object-cover rounded-lg" />
+            <Button onClick={verifyTask} variant="hero" className="w-full">
+              <Check className="h-4 w-4 mr-2" />
+              Verify Task Completion
+            </Button>
           </div>
         )}
-
-        {taskStatus === 'verified' && (
-          <div className="text-center space-y-4">
-            {imagePreview && (
-              <div>
-                <img 
-                  src={imagePreview} 
-                  alt="Verified task" 
-                  className="w-full max-w-md mx-auto rounded-lg shadow-card"
-                />
-              </div>
-            )}
-            
-            <div className="bg-gradient-eco rounded-lg p-6">
-              <Award className="h-12 w-12 mx-auto mb-4 text-success-foreground" />
-              <h3 className="text-xl font-bold text-success-foreground mb-2">
-                Task Complete! 🎉
-              </h3>
-              <p className="text-success-foreground/90">
-                You've successfully completed this real-world environmental task and earned 70 Eco Points!
-              </p>
+        
+        {taskStatus === 'verified' && photoPreview && (
+          <div className="space-y-4">
+            <img src={photoPreview} alt="Verified task photo" className="max-w-full h-48 object-cover rounded-lg" />
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <Check className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-green-800 font-semibold">Task completed and verified!</p>
+              <p className="text-green-600 text-sm">You earned 70 Eco Points</p>
             </div>
           </div>
         )}

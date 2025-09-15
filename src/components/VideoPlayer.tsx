@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react"
 import { useEcoPoints } from "@/contexts/EcoPointsContext"

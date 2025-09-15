@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,32 +19,6 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
   const [taskStatus, setTaskStatus] = useState<'pending' | 'uploaded' | 'verified' | 'rejected'>('pending')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
-
-  useEffect(() => {
-    const loadExistingSubmission = async () => {
-      if (!user || !lessonId) return
-      const { data } = await supabase
-        .from('real_world_tasks')
-        .select('photo_url, verification_status')
-        .eq('user_id', user.id)
-        .eq('lesson_id', lessonId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (data) {
-        if (data.photo_url) setPhotoPreview(data.photo_url as string)
-        if (data.verification_status === 'verified') {
-          setTaskStatus('verified')
-        } else if (data.verification_status === 'pending') {
-          setTaskStatus('uploaded')
-        } else if (data.verification_status === 'rejected') {
-          setTaskStatus('rejected')
-        }
-      }
-    }
-    loadExistingSubmission()
-  }, [user, lessonId])
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

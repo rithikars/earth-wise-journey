@@ -9,12 +9,9 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft, Brain, CheckCircle2, X, Trophy } from "lucide-react"
 import { useEcoPoints } from "@/contexts/EcoPointsContext"
 import { toast } from "@/components/ui/use-toast"
-import { supabase } from "@/integrations/supabase/client"
-import { useAuth } from "@/contexts/AuthContext"
 
 const Quiz = () => {
   const { lessonId } = useParams()
-  const { user } = useAuth()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<string[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -107,20 +104,6 @@ const Quiz = () => {
       if (lessonId) {
         const score = calculateScore(newAnswers)
         await awardQuizPoints(lessonId, score, quizData.questions.length)
-        
-        // Persist quiz completion to Supabase (lesson_progress)
-        if (user) {
-          try {
-            await supabase.from('lesson_progress').upsert({
-              user_id: user.id,
-              lesson_id: lessonId,
-              quiz_score: score,
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id,lesson_id' })
-          } catch (e) {
-            // no-op: persistence failure should not block UX
-          }
-        }
         
         const scoreInfo = getScoreMessage(score)
         toast({

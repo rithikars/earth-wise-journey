@@ -5,14 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { VideoPlayer } from "@/components/VideoPlayer"
 import { ArrowLeft, Brain } from "lucide-react"
-import { useEffect, useState } from "react"
-import { supabase } from "@/integrations/supabase/client"
-import { useAuth } from "@/contexts/AuthContext"
 
 const Lesson = () => {
   const { lessonId } = useParams()
-  const { user } = useAuth()
-  const [isQuizCompleted, setIsQuizCompleted] = useState(false)
   
   // Sample lesson data - in a real app this would come from an API
   const lesson = {
@@ -26,20 +21,6 @@ const Lesson = () => {
   }
 
   const videoUrl = `https://www.youtube.com/embed/${lesson.videoId}`
-
-  useEffect(() => {
-    const loadQuizCompletion = async () => {
-      if (!user || !lessonId) return
-      const { data } = await supabase
-        .from('lesson_progress')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('lesson_id', lessonId)
-        .maybeSingle()
-      setIsQuizCompleted(!!data)
-    }
-    loadQuizCompletion()
-  }, [user, lessonId])
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,14 +45,9 @@ const Lesson = () => {
                 {lesson.description}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="ml-4">
-                +{lesson.points} eco points
-              </Badge>
-              {isQuizCompleted && (
-                <Badge variant="default">Quiz Completed</Badge>
-              )}
-            </div>
+            <Badge variant="outline" className="ml-4">
+              +{lesson.points} eco points
+            </Badge>
           </div>
         </div>
 

@@ -39,7 +39,7 @@ const Course = () => {
       title: "Global Warming vs Climate Change",
       description: "Distinguishing between global warming and broader climate change",
       duration: "12 min",
-      videoCompleted: true,
+      videoCompleted: false,
       quizCompleted: false,
       videoId: "dQw4w9WgXcQ"
     },
@@ -48,8 +48,8 @@ const Course = () => {
       title: "Human Impact on Climate",
       description: "How human activities contribute to climate change",
       duration: "18 min", 
-      videoCompleted: true,
-      quizCompleted: true,
+      videoCompleted: false,
+      quizCompleted: false,
       videoId: "dQw4w9WgXcQ"
     },
     {

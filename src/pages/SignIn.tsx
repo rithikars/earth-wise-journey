@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+ 
 
 const SignIn = () => {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -15,6 +16,7 @@ const SignIn = () => {
   const [displayName, setDisplayName] = useState("")
   const [grade, setGrade] = useState("")
   const [region, setRegion] = useState("")
+ 
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   
@@ -172,6 +174,8 @@ const SignIn = () => {
                 </Select>
               </div>
             )}
+
+            
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-foreground">

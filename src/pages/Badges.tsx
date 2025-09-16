@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { badgeVariants } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/enhanced-button"
 import { Award, Crown, Leaf, Lock, Star, Trophy, Gift, Zap } from "lucide-react"
 import { useEcoPoints } from "@/contexts/EcoPointsContext"
-import { useToast } from "@/hooks/use-toast"
 
 interface BadgeData {
   name: string
@@ -19,79 +18,107 @@ interface Coupon {
   id: string
   title: string
   description: string
-  cost: number
+  code: string
+  discount: string
+  university: string
 }
 
 const Badges = () => {
-  const { totalPoints, redeemCoupon } = useEcoPoints()
-  const { toast } = useToast()
+  const { totalPoints } = useEcoPoints()
   const [userRank, setUserRank] = useState(1)
   const [availableCoupons, setAvailableCoupons] = useState<Coupon[]>([])
-  // Track current spendable points vs lifetime points
-  const [currentPoints, setCurrentPoints] = useState(0)
-  const [lifetimePoints, setLifetimePoints] = useState(0)
-  // Track if database redemption is available
-  const [useDatabaseRedemption, setUseDatabaseRedemption] = useState(true)
 
-  // Keep current and lifetime points in sync with backend total
-  useEffect(() => {
-    // Sync increases from backend; don't overwrite local deductions
-    setCurrentPoints((prev) => Math.max(prev, totalPoints))
-    // lifetime never decreases
-    setLifetimePoints((prev) => Math.max(prev, totalPoints))
-  }, [totalPoints])
-
-  // Badge unlock rules (first at 100, then +350 each thereafter)
-  const baseBadges = [
-    { name: "First Steps", icon: Leaf },
-    { name: "Knowledge Seeker", icon: Star },
-    { name: "Eco Warrior", icon: Award },
-    { name: "Climate Champion", icon: Trophy },
-    { name: "Sustainability Master", icon: Crown },
-    { name: "Earth Guardian", icon: Zap }
-  ] as const
-
-  const badges: BadgeData[] = baseBadges.map((b, index) => {
-    const pointsRequired = 100 + (index * 350)
-    return {
-      name: b.name,
-      description: index === 0
-        ? "Requires 100 eco points"
-        : `Requires 350 eco points (after previous badge)` ,
-      icon: b.icon,
-      pointsRequired,
-      unlocked: lifetimePoints >= pointsRequired
+  // Badge unlock rules
+  const badges: BadgeData[] = [
+    {
+      name: "First Steps",
+      description: "Complete your first lesson",
+      icon: Leaf,
+      pointsRequired: 100,
+      unlocked: totalPoints >= 100
+    },
+    {
+      name: "Knowledge Seeker",
+      description: "Earn 700 eco points",
+      icon: Star,
+      pointsRequired: 700,
+      unlocked: totalPoints >= 700
+    },
+    {
+      name: "Eco Warrior",
+      description: "Earn 1200 eco points",
+      icon: Award,
+      pointsRequired: 1200,
+      unlocked: totalPoints >= 1200
+    },
+    {
+      name: "Climate Champion",
+      description: "Earn 1800 eco points",
+      icon: Trophy,
+      pointsRequired: 1800,
+      unlocked: totalPoints >= 1800
+    },
+    {
+      name: "Sustainability Master",
+      description: "Earn 2400 eco points",
+      icon: Crown,
+      pointsRequired: 2400,
+      unlocked: totalPoints >= 2400
+    },
+    {
+      name: "Earth Guardian",
+      description: "Earn 3000 eco points",
+      icon: Zap,
+      pointsRequired: 3000,
+      unlocked: totalPoints >= 3000
     }
-  })
+  ]
 
-  // Calculate rank based on HIGHEST lifetime eco points
+  // Calculate rank based on eco points
   useEffect(() => {
     let rank = 1
-    if (lifetimePoints >= 100) rank = 2
-    if (lifetimePoints >= 250) rank = 3
-    if (lifetimePoints >= 500) rank = 4
-    if (lifetimePoints >= 1000) rank = 5
-    if (lifetimePoints >= 2500) rank = 6
-    if (lifetimePoints >= 5000) rank = 7
+    if (totalPoints >= 100) rank = 2
+    if (totalPoints >= 250) rank = 3
+    if (totalPoints >= 500) rank = 4
+    if (totalPoints >= 1000) rank = 5
+    if (totalPoints >= 2500) rank = 6
+    if (totalPoints >= 5000) rank = 7
     setUserRank(rank)
 
-    // Static coupon catalog regardless of rank; show always
-    const coupons: Coupon[] = [
-      {
-        id: "evergreen",
-        title: "Evergreen — ₹20 Buy anything you want!",
-        description: "Feel rewarded for going green.",
-        cost: 350
-      },
-      {
-        id: "subway",
-        title: "Subway — ₹100 off any meal",
-        description: "Fuel up sustainably.",
-        cost: 2000
-      }
-    ]
+    // Sample coupons based on rank
+    const coupons: Coupon[] = []
+    if (rank >= 2) {
+      coupons.push({
+        id: "1",
+        title: "Campus Cafe Discount",
+        description: "10% off all sustainable food options",
+        code: "ECO10",
+        discount: "10%",
+        university: "Your University"
+      })
+    }
+    if (rank >= 4) {
+      coupons.push({
+        id: "2", 
+        title: "Green Transportation",
+        description: "Free bike rental for 1 week",
+        code: "BIKE7DAY",
+        discount: "100%",
+        university: "Your University"
+      })
+    }
+    if (rank >= 6) {
+      coupons.push({
+        id: "3",
+        title: "Sustainability Store",
+        description: "25% off eco-friendly products",
+        code: "SUSTAIN25",
+        discount: "25%", 
+        university: "Your University"
+      })
+    }
     setAvailableCoupons(coupons)
-  }, [lifetimePoints])
+  }, [totalPoints])
 
   const getRankName = (rank: number) => {
     const ranks = ["", "Seedling", "Sprout", "Sapling", "Young Tree", "Mature Tree", "Ancient Oak", "Forest Guardian"]
@@ -101,48 +128,6 @@ const Badges = () => {
   const getNextRankPoints = (rank: number) => {
     const thresholds = [0, 100, 250, 500, 1000, 2500, 5000, Infinity]
     return thresholds[rank] || Infinity
-  }
-
-  const handleRedeem = async (coupon: Coupon) => {
-    if (currentPoints < coupon.cost) {
-      toast({
-        title: "Not enough points",
-        description: `You need ${coupon.cost} points to redeem this coupon.`,
-        variant: "destructive"
-      })
-      return
-    }
-    
-    // Try database redemption first if available
-    if (useDatabaseRedemption) {
-      try {
-        await redeemCoupon(coupon.id, coupon.cost)
-        // Update local state to reflect the deduction
-        setCurrentPoints((prev) => prev - coupon.cost)
-        toast({
-          title: "Coupon redeemed!",
-          description: "Great job! Keep going green! 🌿",
-        })
-        return
-      } catch (error: any) {
-        // If database redemption fails, fall back to local state
-        console.warn('Database redemption failed, falling back to local state:', error)
-        setUseDatabaseRedemption(false)
-        toast({
-          title: "Switching to offline mode",
-          description: "Database unavailable, using local redemption.",
-          variant: "default"
-        })
-      }
-    }
-    
-    // Fallback to local state redemption
-    setCurrentPoints((prev) => prev - coupon.cost)
-    // lifetimePoints unchanged
-    toast({
-      title: "Coupon redeemed!",
-      description: "Great job! Keep going green! 🌿",
-    })
   }
 
   return (
@@ -160,18 +145,6 @@ const Badges = () => {
             <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
               Track your progress and unlock rewards as you advance in your sustainability journey!
             </p>
-            <p className="mt-2 text-primary-foreground/90 font-medium">Great job! Keep going green! 🌱</p>
-          </div>
-        </div>
-
-        {/* Redemption Mode Indicator */}
-        <div className="mb-4">
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-            useDatabaseRedemption 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-          }`}>
-            {useDatabaseRedemption ? '🟢 Database Mode' : '🟡 Offline Mode'}
           </div>
         </div>
 
@@ -182,8 +155,8 @@ const Badges = () => {
               <div className="w-16 h-16 bg-gradient-eco rounded-full flex items-center justify-center mx-auto mb-3">
                 <Leaf className="h-8 w-8 text-success-foreground" />
               </div>
-              <p className="text-2xl font-bold text-foreground">{currentPoints.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Current Eco Points</p>
+              <p className="text-2xl font-bold text-foreground">{totalPoints.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Eco Points</p>
             </CardContent>
           </Card>
 
@@ -244,12 +217,11 @@ const Badges = () => {
                         <p className={`text-sm ${badge.unlocked ? 'text-muted-foreground' : 'text-muted-foreground/70'}`}>
                           {badge.description}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">Minimum: {badge.pointsRequired} points</p>
                       </div>
 
-                      <div className={badgeVariants({ variant: badge.unlocked ? "default" : "secondary" })}>
-                        {badge.unlocked ? "Unlocked" : "Locked"}
-                      </div>
+                      <Badge variant={badge.unlocked ? "default" : "secondary"}>
+                        {badge.unlocked ? "Unlocked" : `${badge.pointsRequired} points`}
+                      </Badge>
                     </div>
                   </div>
                 )
@@ -269,30 +241,26 @@ const Badges = () => {
           <CardContent>
             {availableCoupons.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {availableCoupons.map((coupon) => {
-                  const canRedeem = currentPoints >= coupon.cost
-                  return (
-                    <div key={coupon.id} className="border rounded-lg p-4 bg-gradient-to-br from-primary/5 to-success/5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-bold text-foreground">{coupon.title}</h3>
-                          <p className="text-sm text-muted-foreground">{coupon.description}</p>
-                        </div>
-                        <div className={badgeVariants({ variant: "secondary" })}>Cost: {coupon.cost} pts</div>
+                {availableCoupons.map((coupon) => (
+                  <div key={coupon.id} className="border rounded-lg p-4 bg-gradient-to-br from-primary/5 to-success/5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-bold text-foreground">{coupon.title}</h3>
+                        <p className="text-sm text-muted-foreground">{coupon.description}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-3">Minimum credits required: {coupon.cost} points</p>
-                      <Button
-                        variant={canRedeem ? "default" : "outline"}
-                        size="sm"
-                        className={`w-full ${canRedeem ? 'animate-pulse' : ''}`}
-                        onClick={() => handleRedeem(coupon)}
-                        disabled={!canRedeem}
-                      >
-                        {canRedeem ? 'Redeem Now' : 'Insufficient Points'}
-                      </Button>
+                      <Badge variant="secondary">{coupon.discount} OFF</Badge>
                     </div>
-                  )
-                })}
+                    
+                    <div className="bg-muted rounded p-2 text-center mb-3">
+                      <p className="text-xs text-muted-foreground">Coupon Code</p>
+                      <p className="font-mono font-bold text-foreground">{coupon.code}</p>
+                    </div>
+                    
+                    <Button variant="outline" size="sm" className="w-full">
+                      Redeem Now
+                    </Button>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">

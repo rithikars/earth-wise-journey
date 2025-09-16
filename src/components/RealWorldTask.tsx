@@ -53,61 +53,36 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
 
     setIsUploading(true)
     try {
-      // Upload the raw file to Supabase Storage and store only its URL
-      const fileExt = photoFile.name.split('.').pop() || 'jpg'
-      const path = `${user.id}/${lessonId}-${Date.now()}.${fileExt}`
-
-      const { error: storageError } = await supabase
-        .storage
-        .from('task-photos')
-        .upload(path, photoFile, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: photoFile.type || 'image/jpeg'
-        })
-
-      if (storageError) {
-        console.error('Storage upload failed:', storageError)
-        toast({
-          title: "Upload Failed",
-          description: storageError.message || "Could not upload to storage.",
-          variant: "destructive"
-        })
-        return
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const photoDataUrl = e.target?.result as string
+        
+        // Upsert task record to avoid unique constraint issues on re-submit
+        const { error } = await supabase
+          .from('real_world_tasks')
+          .upsert({
+            user_id: user.id,
+            lesson_id: lessonId,
+            photo_url: photoDataUrl,
+            verification_status: 'pending'
+          }, { onConflict: 'user_id,lesson_id' })
+        
+        if (error) {
+          console.error('Upload failed:', error)
+          toast({
+            title: "Upload Failed",
+            description: error.message || "Failed to upload your photo. Please try again.",
+            variant: "destructive"
+          })
+        } else {
+          setTaskStatus('uploaded')
+          toast({
+            title: "Photo Uploaded! 📷",
+            description: "Your photo has been submitted for verification.",
+          })
+        }
       }
-
-      const { data: publicUrlData } = supabase
-        .storage
-        .from('task-photos')
-        .getPublicUrl(path)
-
-      const photoUrl = publicUrlData.publicUrl
-
-      // Upsert task record to avoid unique constraint issues on re-submit
-      const { error } = await supabase
-        .from('real_world_tasks')
-        .upsert({
-          user_id: user.id,
-          lesson_id: lessonId,
-          photo_url: photoUrl,
-          verification_status: 'pending'
-        }, { onConflict: 'user_id,lesson_id' })
-
-      if (error) {
-        console.error('DB upsert failed:', error)
-        toast({
-          title: "Upload Failed",
-          description: error.message || "Failed to save record.",
-          variant: "destructive"
-        })
-        return
-      }
-
-      setTaskStatus('uploaded')
-      toast({
-        title: "Photo Uploaded! 📷",
-        description: "Your photo has been submitted for verification.",
-      })
+      reader.readAsDataURL(photoFile)
     } catch (error) {
       console.error('Upload error:', error)
       toast({

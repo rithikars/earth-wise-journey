@@ -217,6 +217,12 @@ const Quiz = () => {
     }
   }, [difficulty])
 
+  const difficultyLabel = useMemo(() => {
+    if (difficulty === "easy") return "Easy"
+    if (difficulty === "moderate") return "Medium"
+    return "Hard"
+  }, [difficulty])
+
   const handleAnswerSelect = (value: string) => {
     setSelectedAnswer(value)
   }
@@ -387,10 +393,11 @@ const Quiz = () => {
           
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
                 {quizData.title}
+                <Badge variant="secondary">Difficulty: {difficultyLabel}</Badge>
                 {isRetake && (
-                  <Badge variant="secondary" className="ml-2">
+                  <Badge variant="secondary" className="ml-1">
                     <RotateCcw className="h-3 w-3 mr-1" />
                     Retake
                   </Badge>

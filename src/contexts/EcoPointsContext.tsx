@@ -7,6 +7,7 @@ interface EcoPointsContextType {
   awardVideoPoints: (lessonId: string) => Promise<void>
   awardQuizPoints: (lessonId: string, correct: number, total: number) => Promise<void>
   awardTaskPoints: (lessonId: string) => Promise<void>
+  redeemCoupon: (couponId: string, pointsCost: number) => Promise<void>
   loading: boolean
 }
 
@@ -94,6 +95,25 @@ export function EcoPointsProvider({ children }: EcoPointsProviderProps) {
     }
   }
 
+  const redeemCoupon = async (couponId: string, pointsCost: number) => {
+    if (!user) return
+    
+    setLoading(true)
+    try {
+      const { data, error } = await supabase.rpc('redeem_coupon', {
+        _coupon_id: couponId,
+        _points_cost: pointsCost
+      })
+      if (error) throw error
+      setTotalPoints(data || 0)
+    } catch (error) {
+      console.error('Error redeeming coupon:', error)
+      throw error // Re-throw so the calling component can handle it
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Fetch points when user changes
   useEffect(() => {
     if (user) {
@@ -133,6 +153,7 @@ export function EcoPointsProvider({ children }: EcoPointsProviderProps) {
     awardVideoPoints,
     awardQuizPoints,
     awardTaskPoints,
+    redeemCoupon,
     loading
   }
 

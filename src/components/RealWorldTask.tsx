@@ -53,41 +53,62 @@ export const RealWorldTask = ({ lessonId, taskDescription }: RealWorldTaskProps)
 
     setIsUploading(true)
     try {
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        const photoDataUrl = e.target?.result as string
-        
-        // Upsert task record to avoid unique constraint issues on re-submit
-        const { error } = await supabase
-          .from('real_world_tasks')
-          .upsert({
-            user_id: user.id,
-            lesson_id: lessonId,
-            photo_url: photoDataUrl,
-            verification_status: 'pending'
-          }, { onConflict: 'user_id,lesson_id' })
-        
-        if (error) {
-          console.error('Upload failed:', error)
-          toast({
-            title: "Upload Failed",
-            description: error.message || "Failed to upload your photo. Please try again.",
-            variant: "destructive"
-          })
-        } else {
-          setTaskStatus('uploaded')
-          toast({
-            title: "Photo Uploaded! 📷",
-            description: "Your photo has been submitted for verification.",
-          })
+      // Upload to Supabase Storage (prefer task-photos, fallback to community-tasks)
+      const path = `${user.id}/${lessonId}-${Date.now()}-${photoFile.name}`
+      const buckets = ["task-photos", "community-tasks"] as const
+
+      let usedBucket: typeof buckets[number] | null = null
+      let lastErr: any = null
+
+      for (const bucket of buckets) {
+        const { error: storageErr } = await supabase.storage
+          .from(bucket)
+          .upload(path, photoFile, { upsert: false, contentType: photoFile.type || "image/jpeg", cacheControl: "3600" })
+
+        if (!storageErr) {
+          usedBucket = bucket
+          break
+        }
+
+        lastErr = storageErr
+        const message = (storageErr as any)?.message?.toLowerCase?.() || ""
+        if (!message.includes("bucket") || !message.includes("not") || !message.includes("found")) {
+          // Not a bucket-not-found error; stop trying fallbacks
+          break
         }
       }
-      reader.readAsDataURL(photoFile)
-    } catch (error) {
+
+      if (!usedBucket) {
+        throw new Error(lastErr?.message || "Upload failed. Storage bucket unavailable.")
+      }
+
+      const { data: publicUrlData } = supabase.storage.from(usedBucket).getPublicUrl(path)
+      const photoUrl = publicUrlData.publicUrl
+
+      // Upsert task record to avoid unique constraint issues on re-submit
+      const { error } = await supabase
+        .from('real_world_tasks')
+        .upsert({
+          user_id: user.id,
+          lesson_id: lessonId,
+          photo_url: photoUrl,
+          verification_status: 'pending'
+        }, { onConflict: 'user_id,lesson_id' })
+
+      if (error) {
+        throw new Error(error.message || "Failed to save task record.")
+      }
+
+      setTaskStatus('uploaded')
+      toast({
+        title: "Photo Uploaded! 📷",
+        description: `Your photo was saved to ${usedBucket} and submitted for verification.`,
+      })
+    } catch (error: any) {
       console.error('Upload error:', error)
       toast({
         title: "Upload Failed",
-        description: "An error occurred while uploading your photo.",
+        description: error?.message || "An error occurred while uploading your photo.",
         variant: "destructive"
       })
     } finally {

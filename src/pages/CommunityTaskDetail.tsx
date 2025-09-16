@@ -39,12 +39,35 @@ const CommunityTaskDetail = () => {
     }
     try {
       const path = `${user.id}/${taskId}-${Date.now()}-${file.name}`
-      const { error: storageErr } = await supabase.storage.from("community-tasks").upload(path, file, { upsert: false })
-      if (storageErr) {
-        throw new Error(storageErr.message || "Upload failed. Please try again.")
+      const buckets = ["community-tasks", "task-photos"] as const
+
+      let usedBucket: typeof buckets[number] | null = null
+      let lastErr: any = null
+
+      for (const bucket of buckets) {
+        const { error: storageErr } = await supabase.storage
+          .from(bucket)
+          .upload(path, file, { upsert: false, contentType: file.type || "image/jpeg", cacheControl: "3600" })
+
+        if (!storageErr) {
+          usedBucket = bucket
+          break
+        }
+
+        // Keep last error and try next bucket only if bucket not found
+        lastErr = storageErr
+        const message = (storageErr as any)?.message?.toLowerCase?.() || ""
+        if (!message.includes("bucket") || !message.includes("not") || !message.includes("found")) {
+          // Not a bucket not found error; bail out
+          break
+        }
       }
 
-      const { data: publicUrlData } = supabase.storage.from("community-tasks").getPublicUrl(path)
+      if (!usedBucket) {
+        throw new Error(lastErr?.message || "Upload failed. Storage bucket unavailable.")
+      }
+
+      const { data: publicUrlData } = supabase.storage.from(usedBucket).getPublicUrl(path)
       const photoUrl = publicUrlData.publicUrl
 
       const { error: insertErr } = await supabase
@@ -52,7 +75,7 @@ const CommunityTaskDetail = () => {
         .insert({ user_id: user.id, lesson_id: taskId, photo_url: photoUrl, verification_status: "pending" })
       if (insertErr) throw new Error(insertErr.message || "Failed to save record.")
 
-      toast({ title: "Uploaded!", description: "Your task proof has been submitted for review." })
+      toast({ title: "Uploaded!", description: `Your photo was saved to ${usedBucket} and submitted for review.` })
       setFile(null)
     } catch (e: any) {
       const msg = e?.message || "Upload failed. Ensure the bucket exists and you have permission."

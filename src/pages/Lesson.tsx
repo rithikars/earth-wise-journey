@@ -14,14 +14,15 @@ const Lesson = () => {
     id: lessonId,
     title: "Introduction to Climate Science",
     description: "Understanding the greenhouse effect and basic climate principles that drive our planet's climate system.",
-    videoId: lessonId === "1" ? "IHebv2u-X7Y" : "dQw4w9WgXcQ", // Use specific video for Lesson 1
+    videoId: lessonId === "1" ? "dQw4w9WgXcQ" : "dQw4w9WgXcQ", // Use provided video for Lesson 1
     duration: "15 min",
     points: 50,
     completed: false
   }
 
-  const videoUrl = `https://www.youtube.com/embed/${lesson.videoId}`
-  const isLesson1 = lessonId === "1"
+  const videoUrl = lessonId === "1"
+    ? `https://www.youtube.com/embed/dQw4w9WgXcQ`
+    : `https://www.youtube.com/embed/${lesson.videoId}`
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,24 +55,11 @@ const Lesson = () => {
 
         {/* Video Player */}
         <div className="mb-8">
-          {isLesson1 ? (
-            <div className="relative bg-card rounded-lg overflow-hidden shadow-card">
-              <iframe
-                src={videoUrl}
-                title={lesson.title}
-                className="w-full aspect-video"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <VideoPlayer 
-              src={videoUrl} 
-              lessonId={lessonId || ""} 
-              title={lesson.title}
-            />
-          )}
+          <VideoPlayer 
+            src={videoUrl} 
+            lessonId={lessonId || ""} 
+            title={lesson.title}
+          />
         </div>
 
         {/* Real-World Task moved to dedicated page */}

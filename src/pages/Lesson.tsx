@@ -14,15 +14,13 @@ const Lesson = () => {
     id: lessonId,
     title: "Introduction to Climate Science",
     description: "Understanding the greenhouse effect and basic climate principles that drive our planet's climate system.",
-    videoId: lessonId === "1" ? "dQw4w9WgXcQ" : "dQw4w9WgXcQ", // Use provided video for Lesson 1
+    videoId: "IHebv2u-X7Y?si=7Ok8bAeXRDodV60t",
     duration: "15 min",
     points: 50,
     completed: false
   }
 
-  const videoUrl = lessonId === "1"
-    ? `https://www.youtube.com/embed/dQw4w9WgXcQ`
-    : `https://www.youtube.com/embed/${lesson.videoId}`
+  const videoUrl = `https://www.youtube.com/embed/IHebv2u-X7Y?si=7Ok8bAeXRDodV60t`
 
   return (
     <div className="min-h-screen bg-background">

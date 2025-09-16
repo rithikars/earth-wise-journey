@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 export const Navbar = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
+  const { user, session, signOut } = useAuth()
   
   const isActive = (path: string) => location.pathname === path
 
@@ -46,7 +46,7 @@ export const Navbar = () => {
               <EcoPointsBar />
             </div>
 
-            {user && (
+            {(user || session) && (
               <Button
                 variant="outline"
                 size="sm"

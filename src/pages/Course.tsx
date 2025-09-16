@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/enhanced-button"
@@ -15,7 +15,6 @@ import {
   CheckCircle2, 
   Clock, 
   ChevronDown, 
-  BookOpen, 
   Brain,
   ArrowLeft 
 } from "lucide-react"
@@ -195,13 +194,6 @@ const Course = () => {
                       )}
                     </div>
                   </div>
-                  
-                  <Link to={`/lesson/${lesson.id}`}>
-                    <Button variant="ghost" size="sm">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Start Lesson
-                    </Button>
-                  </Link>
                 </div>
               </CardContent>
             </Card>

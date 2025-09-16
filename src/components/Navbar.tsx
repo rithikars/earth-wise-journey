@@ -40,6 +40,9 @@ export const Navbar = () => {
                 <Trophy className="h-4 w-4" />
                 <span className="hidden sm:inline">Leaderboard</span>
               </Link>
+              <Link to="/community-tasks" className={navLinkClass("/community-tasks")}>
+                <span className="hidden sm:inline">Community Tasks</span>
+              </Link>
             </div>
             
             <div className="ml-auto">

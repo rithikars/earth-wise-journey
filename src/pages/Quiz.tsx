@@ -225,9 +225,9 @@ const Quiz = () => {
                     Back to Lesson
                   </Button>
                 </Link>
-                <Link to={`/task/${lessonId}`} className="flex-1">
+                <Link to={`/community-tasks`} className="flex-1">
                   <Button variant="hero" size="lg" className="w-full">
-                    Do Real-World Task
+                    Explore Community Tasks
                   </Button>
                 </Link>
               </div>

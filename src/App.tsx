@@ -16,6 +16,8 @@ import RealWorldTaskPage from "./pages/RealWorldTaskPage";
 import Leaderboard from "./pages/Leaderboard";
 import NewBadges from "./pages/NewBadges";
 import NotFound from "./pages/NotFound";
+import CommunityTasks from "./pages/CommunityTasks";
+import CommunityTaskDetail from "./pages/CommunityTaskDetail";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ const App = () => (
                 <Route path="/quiz/:lessonId" element={<Quiz />} />
                 <Route path="/task/:lessonId" element={<RealWorldTaskPage />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/community-tasks" element={<CommunityTasks />} />
+                <Route path="/community-tasks/:taskId" element={<CommunityTaskDetail />} />
                 <Route path="/badges" element={<NewBadges />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

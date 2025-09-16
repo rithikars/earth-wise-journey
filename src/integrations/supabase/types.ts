@@ -224,6 +224,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      retake_quiz_points: {
+        Args: { _correct: number; _lesson_id: string; _total: number }
+        Returns: number
+      }
       verify_task_and_award_points: {
         Args: { _task_id: string }
         Returns: number

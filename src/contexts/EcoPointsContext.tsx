@@ -6,8 +6,8 @@ interface EcoPointsContextType {
   totalPoints: number
   awardVideoPoints: (lessonId: string) => Promise<void>
   awardQuizPoints: (lessonId: string, correct: number, total: number) => Promise<void>
+  retakeQuizPoints: (lessonId: string, correct: number, total: number) => Promise<void>
   awardTaskPoints: (lessonId: string) => Promise<void>
-  redeemCoupon: (couponId: string, pointsCost: number) => Promise<void>
   loading: boolean
 }
 
@@ -78,6 +78,25 @@ export function EcoPointsProvider({ children }: EcoPointsProviderProps) {
     }
   }
 
+  const retakeQuizPoints = async (lessonId: string, correct: number, total: number) => {
+    if (!user) return
+    
+    setLoading(true)
+    try {
+      const { data, error } = await supabase.rpc('retake_quiz_points', {
+        _lesson_id: lessonId,
+        _correct: correct,
+        _total: total
+      })
+      if (error) throw error
+      setTotalPoints(data || 0)
+    } catch (error) {
+      console.error('Error retaking quiz points:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const awardTaskPoints = async (lessonId: string) => {
     if (!user) return
     
@@ -90,25 +109,6 @@ export function EcoPointsProvider({ children }: EcoPointsProviderProps) {
       setTotalPoints(data || 0)
     } catch (error) {
       console.error('Error awarding task points:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const redeemCoupon = async (couponId: string, pointsCost: number) => {
-    if (!user) return
-    
-    setLoading(true)
-    try {
-      const { data, error } = await supabase.rpc('redeem_coupon', {
-        _coupon_id: couponId,
-        _points_cost: pointsCost
-      })
-      if (error) throw error
-      setTotalPoints(data || 0)
-    } catch (error) {
-      console.error('Error redeeming coupon:', error)
-      throw error // Re-throw so the calling component can handle it
     } finally {
       setLoading(false)
     }
@@ -152,8 +152,8 @@ export function EcoPointsProvider({ children }: EcoPointsProviderProps) {
     totalPoints,
     awardVideoPoints,
     awardQuizPoints,
+    retakeQuizPoints,
     awardTaskPoints,
-    redeemCoupon,
     loading
   }
 

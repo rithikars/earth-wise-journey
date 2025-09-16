@@ -23,15 +23,13 @@ interface Coupon {
 }
 
 const Badges = () => {
-  const { totalPoints, redeemCoupon } = useEcoPoints()
+  const { totalPoints } = useEcoPoints()
   const { toast } = useToast()
   const [userRank, setUserRank] = useState(1)
   const [availableCoupons, setAvailableCoupons] = useState<Coupon[]>([])
   // Track current spendable points vs lifetime points
   const [currentPoints, setCurrentPoints] = useState(0)
   const [lifetimePoints, setLifetimePoints] = useState(0)
-  // Track if database redemption is available
-  const [useDatabaseRedemption, setUseDatabaseRedemption] = useState(true)
 
   // Keep current and lifetime points in sync with backend total
   useEffect(() => {
@@ -103,7 +101,7 @@ const Badges = () => {
     return thresholds[rank] || Infinity
   }
 
-  const handleRedeem = async (coupon: Coupon) => {
+  const handleRedeem = (coupon: Coupon) => {
     if (currentPoints < coupon.cost) {
       toast({
         title: "Not enough points",
@@ -112,31 +110,6 @@ const Badges = () => {
       })
       return
     }
-    
-    // Try database redemption first if available
-    if (useDatabaseRedemption) {
-      try {
-        await redeemCoupon(coupon.id, coupon.cost)
-        // Update local state to reflect the deduction
-        setCurrentPoints((prev) => prev - coupon.cost)
-        toast({
-          title: "Coupon redeemed!",
-          description: "Great job! Keep going green! 🌿",
-        })
-        return
-      } catch (error: any) {
-        // If database redemption fails, fall back to local state
-        console.warn('Database redemption failed, falling back to local state:', error)
-        setUseDatabaseRedemption(false)
-        toast({
-          title: "Switching to offline mode",
-          description: "Database unavailable, using local redemption.",
-          variant: "default"
-        })
-      }
-    }
-    
-    // Fallback to local state redemption
     setCurrentPoints((prev) => prev - coupon.cost)
     // lifetimePoints unchanged
     toast({
@@ -161,17 +134,6 @@ const Badges = () => {
               Track your progress and unlock rewards as you advance in your sustainability journey!
             </p>
             <p className="mt-2 text-primary-foreground/90 font-medium">Great job! Keep going green! 🌱</p>
-          </div>
-        </div>
-
-        {/* Redemption Mode Indicator */}
-        <div className="mb-4">
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-            useDatabaseRedemption 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-          }`}>
-            {useDatabaseRedemption ? '🟢 Database Mode' : '🟡 Offline Mode'}
           </div>
         </div>
 

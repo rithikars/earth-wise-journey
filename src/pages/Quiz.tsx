@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Brain, CheckCircle2, X, Trophy } from "lucide-react"
+import { ArrowLeft, Brain, CheckCircle2, X, Trophy, RotateCcw } from "lucide-react"
 import { useEcoPoints } from "@/contexts/EcoPointsContext"
 import { toast } from "@/components/ui/use-toast"
 
@@ -16,7 +16,8 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<string[]>([])
   const [showResults, setShowResults] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState("")
-  const { awardQuizPoints } = useEcoPoints()
+  const [isRetake, setIsRetake] = useState(false)
+  const { awardQuizPoints, retakeQuizPoints } = useEcoPoints()
 
   // Sample quiz data - in a real app this would come from an API
   const quizData = {
@@ -103,11 +104,16 @@ const Quiz = () => {
       // Award quiz points when quiz is completed
       if (lessonId) {
         const score = calculateScore(newAnswers)
-        await awardQuizPoints(lessonId, score, quizData.questions.length)
+        
+        if (isRetake) {
+          await retakeQuizPoints(lessonId, score, quizData.questions.length)
+        } else {
+          await awardQuizPoints(lessonId, score, quizData.questions.length)
+        }
         
         const scoreInfo = getScoreMessage(score)
         toast({
-          title: "Quiz Complete! 🎉",
+          title: isRetake ? "Quiz Retaken! 🔄" : "Quiz Complete! 🎉",
           description: `You earned ${scoreInfo.points} Eco Points!`,
         })
       }
@@ -133,6 +139,21 @@ const Quiz = () => {
     return { message: "Keep studying! Practice makes perfect.", color: "text-destructive", points: 10 }
   }
 
+  const handleRetakeQuiz = () => {
+    // Reset quiz state
+    setCurrentQuestion(0)
+    setAnswers([])
+    setSelectedAnswer("")
+    setShowResults(false)
+    setIsRetake(true)
+    
+    // Show a toast to indicate the quiz is being reset
+    toast({
+      title: "Quiz Reset! 🔄",
+      description: "Starting fresh - good luck!",
+    })
+  }
+
   if (showResults) {
     const score = calculateScore()
     const scoreInfo = getScoreMessage(score)
@@ -147,7 +168,9 @@ const Quiz = () => {
               <div className="w-20 h-20 bg-gradient-gold rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trophy className="h-10 w-10 text-gold-foreground" />
               </div>
-              <CardTitle className="text-2xl">Quiz Complete!</CardTitle>
+              <CardTitle className="text-2xl">
+                {isRetake ? "Quiz Retaken!" : "Quiz Complete!"}
+              </CardTitle>
             </CardHeader>
             
             <CardContent className="text-center space-y-6">
@@ -188,6 +211,15 @@ const Quiz = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={handleRetakeQuiz}
+                  className="flex-1"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Retake Quiz
+                </Button>
                 <Link to={`/lesson/${lessonId}`} className="flex-1">
                   <Button variant="outline" size="lg" className="w-full">
                     Back to Lesson
@@ -232,6 +264,12 @@ const Quiz = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">
                 {quizData.title}
+                {isRetake && (
+                  <Badge variant="secondary" className="ml-2">
+                    <RotateCcw className="h-3 w-3 mr-1" />
+                    Retake
+                  </Badge>
+                )}
               </h1>
               <p className="text-muted-foreground">
                 {quizData.lessonTitle}

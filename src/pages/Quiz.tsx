@@ -26,63 +26,63 @@ const Quiz = () => {
     questions: [
       {
         id: "q1",
-        question: "What is the primary cause of the greenhouse effect?",
+        question: "What is the main difference between climate and weather?",
         options: [
-          "Solar radiation heating Earth's surface",
-          "Atmospheric gases trapping heat",
-          "Ocean currents distributing heat",
-          "Mountain ranges blocking wind"
+          "Weather refers to long-term patterns, climate to short-term conditions",
+          "Climate refers to long-term patterns, weather to short-term conditions",
+          "Both are the same",
+          "Weather only refers to rainfall"
         ],
         correctAnswer: 1,
-        explanation: "The greenhouse effect is primarily caused by atmospheric gases that trap heat radiated from Earth's surface."
+        explanation: "Climate refers to long-term patterns of temperature, precipitation, and other atmospheric conditions, while weather refers to short-term conditions that can change from day to day."
       },
       {
         id: "q2", 
-        question: "Which gas contributes most to human-caused climate change?",
+        question: "Which of the following best defines climate change?",
         options: [
-          "Water vapor",
-          "Carbon dioxide",
-          "Methane",
-          "Ozone"
+          "A natural seasonal shift in temperature",
+          "A short-term change in weather patterns",
+          "Long-term changes in global or regional climate patterns",
+          "A sudden storm event"
         ],
-        correctAnswer: 1,
-        explanation: "Carbon dioxide (CO2) is the most significant greenhouse gas from human activities, primarily from burning fossil fuels."
+        correctAnswer: 2,
+        explanation: "Climate change refers to long-term changes in global or regional climate patterns, particularly the warming trend observed since the mid-20th century."
       },
       {
         id: "q3",
-        question: "What percentage of climate scientists agree that human activities are the primary cause of recent climate change?",
+        question: "Which human activity is the largest contributor to climate change?",
         options: [
-          "Around 50%",
-          "Around 75%",
-          "Around 90%",
-          "Over 97%"
+          "Planting trees",
+          "Burning fossil fuels",
+          "Recycling waste",
+          "Using solar energy"
         ],
-        correctAnswer: 3,
-        explanation: "Over 97% of actively publishing climate scientists agree that human activities are the primary driver of recent climate change."
+        correctAnswer: 1,
+        explanation: "Burning fossil fuels (coal, oil, and natural gas) is the largest contributor to climate change, releasing greenhouse gases like carbon dioxide into the atmosphere."
       },
       {
         id: "q4",
-        question: "Which of the following is NOT a direct effect of climate change?",
+        question: "Global warming is a part of:",
         options: [
-          "Rising sea levels",
-          "Increased extreme weather events", 
-          "Ocean acidification",
-          "Ozone layer depletion"
+          "Climate change",
+          "Ozone depletion",
+          "Air pollution",
+          "Weather forecasting"
         ],
-        correctAnswer: 3,
-        explanation: "Ozone layer depletion is primarily caused by CFCs and other chemicals, not directly by climate change."
+        correctAnswer: 0,
+        explanation: "Global warming is a component of climate change, specifically referring to the long-term increase in Earth's average surface temperature."
       },
       {
         id: "q5",
-        question: "What is the most effective individual action to reduce your carbon footprint?",
+        question: "Which of the following gases is a major greenhouse gas?",
         options: [
-          "Recycling more",
-          "Using LED light bulbs",
-          "Reducing energy consumption and using renewable energy",
-          "Buying organic food"
+          "Oxygen (O₂)",
+          "Nitrogen (N₂)",
+          "Carbon dioxide (CO₂)",
+          "Hydrogen (H₂)"
         ],
         correctAnswer: 2,
-        explanation: "Reducing overall energy consumption and switching to renewable energy sources has the greatest impact on reducing individual carbon footprints."
+        explanation: "Carbon dioxide (CO₂) is a major greenhouse gas that traps heat in Earth's atmosphere, contributing significantly to the greenhouse effect and climate change."
       }
     ]
   }

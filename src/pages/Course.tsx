@@ -72,7 +72,7 @@ const Course = () => {
     }
   ]
 
-  const courseTitle = "Climate Change Fundamentals"
+  const courseTitle = "Understanding Climate Change: Causes, Impacts, and Solutions"
   const completedLessons = lessons.filter(l => l.videoCompleted && l.quizCompleted).length
   const totalLessons = lessons.length
   const progressPercentage = Math.round((completedLessons / totalLessons) * 100)
@@ -215,7 +215,7 @@ const Course = () => {
               <CheckCircle2 className="h-16 w-16 mx-auto mb-4" />
               <h3 className="text-2xl font-bold mb-2">Course Completed! 🎉</h3>
               <p className="mb-4">
-                Congratulations! You've mastered Climate Change Fundamentals and earned 500 eco points!
+                Congratulations! You've mastered Understanding Climate Change: Causes, Impacts, and Solutions and earned 500 eco points!
               </p>
               <Button variant="hero" size="lg">
                 View Certificate

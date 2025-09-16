@@ -9,7 +9,7 @@ const Dashboard = () => {
   // Sample course data - in a real app this would come from an API
   const course = {
     id: "climate-change-101",
-    title: "Climate Change Fundamentals",
+    title: "Understanding Climate Change: Causes, Impacts, and Solutions",
     description: "Understanding the science behind climate change, its impacts, and actionable solutions for a sustainable future.",
     duration: "1 weeks",
     lessons: 5,

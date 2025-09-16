@@ -39,21 +39,24 @@ const CommunityTaskDetail = () => {
     }
     try {
       const path = `${user.id}/${taskId}-${Date.now()}-${file.name}`
-      const { error: storageErr } = await supabase.storage.from("task-photos").upload(path, file, { upsert: false })
-      if (storageErr) throw storageErr
+      const { error: storageErr } = await supabase.storage.from("community-tasks").upload(path, file, { upsert: false })
+      if (storageErr) {
+        throw new Error(storageErr.message || "Upload failed. Please try again.")
+      }
 
-      const { data: publicUrlData } = supabase.storage.from("task-photos").getPublicUrl(path)
+      const { data: publicUrlData } = supabase.storage.from("community-tasks").getPublicUrl(path)
       const photoUrl = publicUrlData.publicUrl
 
       const { error: insertErr } = await supabase
         .from("real_world_tasks")
         .insert({ user_id: user.id, lesson_id: taskId, photo_url: photoUrl, verification_status: "pending" })
-      if (insertErr) throw insertErr
+      if (insertErr) throw new Error(insertErr.message || "Failed to save record.")
 
       toast({ title: "Uploaded!", description: "Your task proof has been submitted for review." })
       setFile(null)
     } catch (e: any) {
-      toast({ title: "Upload failed", description: e.message || "Please try again.", variant: "destructive" })
+      const msg = e?.message || "Upload failed. Ensure the bucket exists and you have permission."
+      toast({ title: "Upload failed", description: msg, variant: "destructive" })
     }
   }
 

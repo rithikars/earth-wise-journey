@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/enhanced-button"
@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft, Brain, CheckCircle2, X, Trophy, RotateCcw } from "lucide-react"
 import { useEcoPoints } from "@/contexts/EcoPointsContext"
 import { toast } from "@/components/ui/use-toast"
+import { useAuth } from "@/contexts/AuthContext"
 
 const Quiz = () => {
   const { lessonId } = useParams()
+  const { user } = useAuth()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<string[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -19,73 +21,201 @@ const Quiz = () => {
   const [isRetake, setIsRetake] = useState(false)
   const { awardQuizPoints, retakeQuizPoints } = useEcoPoints()
 
-  // Sample quiz data - in a real app this would come from an API
-  const quizData = {
-    title: "Climate Science Quiz",
-    lessonTitle: "Introduction to Climate Science",
-    questions: [
-      {
-        id: "q1",
-        question: "What is the main difference between climate and weather?",
-        options: [
-          "Weather refers to long-term patterns, climate to short-term conditions",
-          "Climate refers to long-term patterns, weather to short-term conditions",
-          "Both are the same",
-          "Weather only refers to rainfall"
-        ],
-        correctAnswer: 1,
-        explanation: "Climate refers to long-term patterns of temperature, precipitation, and other atmospheric conditions, while weather refers to short-term conditions that can change from day to day."
-      },
-      {
-        id: "q2", 
-        question: "Which of the following best defines climate change?",
-        options: [
-          "A natural seasonal shift in temperature",
-          "A short-term change in weather patterns",
-          "Long-term changes in global or regional climate patterns",
-          "A sudden storm event"
-        ],
-        correctAnswer: 2,
-        explanation: "Climate change refers to long-term changes in global or regional climate patterns, particularly the warming trend observed since the mid-20th century."
-      },
-      {
-        id: "q3",
-        question: "Which human activity is the largest contributor to climate change?",
-        options: [
-          "Planting trees",
-          "Burning fossil fuels",
-          "Recycling waste",
-          "Using solar energy"
-        ],
-        correctAnswer: 1,
-        explanation: "Burning fossil fuels (coal, oil, and natural gas) is the largest contributor to climate change, releasing greenhouse gases like carbon dioxide into the atmosphere."
-      },
-      {
-        id: "q4",
-        question: "Global warming is a part of:",
-        options: [
-          "Climate change",
-          "Ozone depletion",
-          "Air pollution",
-          "Weather forecasting"
-        ],
-        correctAnswer: 0,
-        explanation: "Global warming is a component of climate change, specifically referring to the long-term increase in Earth's average surface temperature."
-      },
-      {
-        id: "q5",
-        question: "Which of the following gases is a major greenhouse gas?",
-        options: [
-          "Oxygen (O₂)",
-          "Nitrogen (N₂)",
-          "Carbon dioxide (CO₂)",
-          "Hydrogen (H₂)"
-        ],
-        correctAnswer: 2,
-        explanation: "Carbon dioxide (CO₂) is a major greenhouse gas that traps heat in Earth's atmosphere, contributing significantly to the greenhouse effect and climate change."
+  // Build quiz sets based on user grade
+  const userGrade = (user?.user_metadata?.grade || "") as string
+  const difficulty: "easy" | "moderate" | "hard" = useMemo(() => {
+    if (userGrade === "elementary_1_4") return "easy"
+    if (userGrade === "middle_5_8") return "moderate"
+    if (userGrade === "high_9_12" || userGrade === "college") return "hard"
+    return "moderate"
+  }, [userGrade])
+
+  const quizData = useMemo(() => {
+    const base = {
+      title: "Climate Science Quiz",
+      lessonTitle: "Introduction to Climate Science",
+    }
+    if (difficulty === "easy") {
+      return {
+        ...base,
+        questions: [
+          {
+            id: "q1",
+            question: "What is climate?",
+            options: [
+              "The weather today",
+              "The usual weather of a place over a long time",
+              "The temperature at night",
+              "The type of soil"
+            ],
+            correctAnswer: 1,
+            explanation: "Climate is the usual weather of a place over a long time."
+          },
+          {
+            id: "q2",
+            question: "Which of the following affects climate?",
+            options: ["Mountains", "Ice cream", "A bicycle", "A pencil"],
+            correctAnswer: 0,
+            explanation: "Mountains can affect climate by influencing wind and rainfall patterns."
+          },
+          {
+            id: "q3",
+            question: "Why should we care about the climate?",
+            options: [
+              "It helps us watch TV",
+              "It affects plants, animals, and people",
+              "It makes food taste better",
+              "It tells us the time"
+            ],
+            correctAnswer: 1,
+            explanation: "Climate affects living things and our daily lives."
+          },
+          {
+            id: "q4",
+            question: "What is global warming?",
+            options: [
+              "The Earth getting colder",
+              "The Earth getting hotter over time",
+              "Ice melting in your fridge",
+              "Rain every day"
+            ],
+            correctAnswer: 1,
+            explanation: "Global warming is the Earth's average temperature rising over time."
+          },
+          {
+            id: "q5",
+            question: "Which helps the environment?",
+            options: [
+              "Throwing plastic in the river",
+              "Planting trees",
+              "Wasting water",
+              "Leaving lights on all day"
+            ],
+            correctAnswer: 1,
+            explanation: "Planting trees helps the environment."
+          }
+        ]
       }
-    ]
-  }
+    }
+    if (difficulty === "moderate") {
+      return {
+        ...base,
+        questions: [
+          {
+            id: "q1",
+            question: "What is the difference between weather and climate?",
+            options: [
+              "Weather is long-term, climate is short-term",
+              "Weather is about animals, climate is about plants",
+              "Weather is short-term, climate is long-term",
+              "Weather is always sunny, climate is always rainy"
+            ],
+            correctAnswer: 2,
+            explanation: "Weather is short-term; climate is long-term patterns."
+          },
+          {
+            id: "q2",
+            question: "What mainly causes global warming?",
+            options: ["Greenhouse gases like CO₂", "Water vapor", "Soil erosion", "Volcano eruptions"],
+            correctAnswer: 0,
+            explanation: "Greenhouse gases like CO₂ trap heat."
+          },
+          {
+            id: "q3",
+            question: "How does climate change affect animals?",
+            options: ["Animals get stronger", "Animals have fewer homes", "Animals always sleep", "Animals don’t need food anymore"],
+            correctAnswer: 1,
+            explanation: "Habitat loss reduces places for animals to live."
+          },
+          {
+            id: "q4",
+            question: "What are greenhouse gases?",
+            options: [
+              "Gases in glasshouses",
+              "Gases that trap heat in the atmosphere",
+              "Gases that cool the Earth",
+              "Gases in balloons"
+            ],
+            correctAnswer: 1,
+            explanation: "They trap heat in the atmosphere."
+          },
+          {
+            id: "q5",
+            question: "Humans contribute to climate change by:",
+            options: ["Using bicycles", "Planting more trees", "Driving cars that emit CO₂", "Drinking water"],
+            correctAnswer: 2,
+            explanation: "Car emissions add CO₂ to the atmosphere."
+          }
+        ]
+      }
+    }
+    // hard
+    return {
+      ...base,
+      questions: [
+        {
+          id: "q1",
+          question: "The greenhouse effect is:",
+          options: [
+            "Heat trapped by greenhouse gases in the atmosphere",
+            "Cooling of the Earth",
+            "Heat from underground lava",
+            "Wind blowing from the ocean"
+          ],
+          correctAnswer: 0,
+          explanation: "Greenhouse gases trap heat and warm the Earth."
+        },
+        {
+          id: "q2",
+          question: "Climate change differs from global warming because:",
+          options: [
+            "Global warming is short-term; climate change is long-term",
+            "Global warming refers to Earth’s rising temperature; climate change refers to long-term weather patterns",
+            "They are the same thing",
+            "Climate change happens only in winter"
+          ],
+          correctAnswer: 1,
+          explanation: "Global warming is one part of climate change."
+        },
+        {
+          id: "q3",
+          question: "Deforestation contributes to climate change by:",
+          options: [
+            "Increasing CO₂ in the atmosphere",
+            "Absorbing more CO₂",
+            "Making more oxygen",
+            "Creating clouds"
+          ],
+          correctAnswer: 0,
+          explanation: "Removing trees reduces CO₂ uptake and can increase CO₂."
+        },
+        {
+          id: "q4",
+          question: "Climate models are used to:",
+          options: [
+            "Predict future climate changes",
+            "Make toys",
+            "Measure air pressure today",
+            "Design buildings"
+          ],
+          correctAnswer: 0,
+          explanation: "Models project future climate under scenarios."
+        },
+        {
+          id: "q5",
+          question: "One major impact of climate change on humans is:",
+          options: [
+            "More floods and heatwaves",
+            "Less sunshine",
+            "Increased earthquakes",
+            "Faster animal growth"
+          ],
+          correctAnswer: 0,
+          explanation: "Extreme events like floods and heatwaves increase."
+        }
+      ]
+    }
+  }, [difficulty])
 
   const handleAnswerSelect = (value: string) => {
     setSelectedAnswer(value)

@@ -2,12 +2,12 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/enhanced-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Leaf, Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/use-toast"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
- 
+
 
 const SignIn = () => {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -16,7 +16,6 @@ const SignIn = () => {
   const [displayName, setDisplayName] = useState("")
   const [grade, setGrade] = useState("")
   const [region, setRegion] = useState("")
- 
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   
@@ -45,15 +44,23 @@ const SignIn = () => {
           })
           return
         }
-        
-        if (!grade || !region) {
+        if (!grade) {
           toast({
-            title: "Missing information",
-            description: "Please select your grade and region",
+            title: "Grade required",
+            description: "Please select your grade",
             variant: "destructive"
           })
           return
         }
+        if (!region) {
+          toast({
+            title: "Region required",
+            description: "Please select your region",
+            variant: "destructive"
+          })
+          return
+        }
+        
         const { error } = await signUp(email, password, displayName, grade, region)
         if (error) {
           toast({
@@ -143,14 +150,14 @@ const SignIn = () => {
             {isSignUp && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">Grade</Label>
-                <Select onValueChange={setGrade} value={grade}>
-                  <SelectTrigger>
+                <Select value={grade} onValueChange={setGrade}>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select your grade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="elementary">Elementary (1–4)</SelectItem>
-                    <SelectItem value="middle">Middle School (5–8)</SelectItem>
-                    <SelectItem value="high">High School (9–12)</SelectItem>
+                    <SelectItem value="elementary_1_4">Elementary (1–4)</SelectItem>
+                    <SelectItem value="middle_5_8">Middle School (5–8)</SelectItem>
+                    <SelectItem value="high_9_12">High School (9–12)</SelectItem>
                     <SelectItem value="college">College</SelectItem>
                   </SelectContent>
                 </Select>
@@ -160,22 +167,20 @@ const SignIn = () => {
             {isSignUp && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">Region</Label>
-                <Select onValueChange={setRegion} value={region}>
-                  <SelectTrigger>
+                <Select value={region} onValueChange={setRegion}>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select your region" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="north-india">North India</SelectItem>
-                    <SelectItem value="south-india">South India</SelectItem>
-                    <SelectItem value="east-india">East India</SelectItem>
-                    <SelectItem value="west-india">West India</SelectItem>
-                    <SelectItem value="central-india">Central India</SelectItem>
+                    <SelectItem value="north_india">North India</SelectItem>
+                    <SelectItem value="south_india">South India</SelectItem>
+                    <SelectItem value="east_india">East India</SelectItem>
+                    <SelectItem value="west_india">West India</SelectItem>
+                    <SelectItem value="central_india">Central India</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
-
-            
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-foreground">

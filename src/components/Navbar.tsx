@@ -1,9 +1,13 @@
-import { Link, useLocation } from "react-router-dom"
-import { Leaf, Trophy, Award } from "lucide-react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Leaf, Trophy, Award, LogOut } from "lucide-react"
 import { EcoPointsBar } from "@/components/EcoPointsBar"
+import { Button } from "@/components/ui/enhanced-button"
+import { useAuth } from "@/contexts/AuthContext"
 
 export const Navbar = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, signOut } = useAuth()
   
   const isActive = (path: string) => location.pathname === path
 
@@ -41,6 +45,20 @@ export const Navbar = () => {
             <div className="ml-auto">
               <EcoPointsBar />
             </div>
+
+            {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await signOut()
+                  navigate("/")
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
           </div>
         </div>
       </div>

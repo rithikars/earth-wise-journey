@@ -6,12 +6,15 @@ import { Leaf, Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/use-toast"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const SignIn = () => {
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
+  const [grade, setGrade] = useState("")
+  const [region, setRegion] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   
@@ -41,7 +44,15 @@ const SignIn = () => {
           return
         }
         
-        const { error } = await signUp(email, password, displayName)
+        if (!grade || !region) {
+          toast({
+            title: "Missing information",
+            description: "Please select your grade and region",
+            variant: "destructive"
+          })
+          return
+        }
+        const { error } = await signUp(email, password, displayName, grade, region)
         if (error) {
           toast({
             title: "Sign up failed",
@@ -124,6 +135,41 @@ const SignIn = () => {
                     required={isSignUp}
                   />
                 </div>
+              </div>
+            )}
+
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground">Grade</Label>
+                <Select onValueChange={setGrade} value={grade}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="elementary">Elementary (1–4)</SelectItem>
+                    <SelectItem value="middle">Middle School (5–8)</SelectItem>
+                    <SelectItem value="high">High School (9–12)</SelectItem>
+                    <SelectItem value="college">College</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground">Region</Label>
+                <Select onValueChange={setRegion} value={region}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="north-india">North India</SelectItem>
+                    <SelectItem value="south-india">South India</SelectItem>
+                    <SelectItem value="east-india">East India</SelectItem>
+                    <SelectItem value="west-india">West India</SelectItem>
+                    <SelectItem value="central-india">Central India</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
